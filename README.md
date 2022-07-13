@@ -11,7 +11,7 @@
     - The core network is recurrent network
     - Action network is trained with supervised objective
     - Location network is trained with REINFORCE
-- Individual experiments are implementated in [`RAM_centered.py`](RAM_centered.py),[`RAM_translated.py`](RAM_translated.py) and [`RAM_cluttered.py`](RAM_cluttered.py)
+- Individual experiments are implementated in [`RAM_centered.py`](RAM_ASD_TD_train_test.py),[`RAM_translated.py`](RAM_translated.py) and [`RAM_cluttered.py`](RAM_cluttered.py)
 - Environment for game _Catch_ is defined in [`catch.py`](catch.py)
 - RAM and experiment for _Catch_ are defined in [`RAM_catch.py`](RAM_catch.py)
     - The core network is LSTM
