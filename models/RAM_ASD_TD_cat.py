@@ -89,6 +89,23 @@ class GLIMPSE(nn.Module):
         touch_gaze_emb = touch_gaze_emb.view(bs, num_ts*touch_gaze_emb.shape[-1])
         # gaze_emb = gaze_emb.view(bs,num_ts,gaze_emb.shape[-1])
 
+        # touch_gaze_emb = torch.mean(touch_gaze_emb, dim = 1)
+        # gaze_emb = torch.mean(gaze_emb, dim = 1)
+        # print("aggregate: ", touch_emb.shape, gaze_emb.shape)
+        # if not self._is_gaze:
+        #     task_rep = touch_emb
+        # elif not self._is_touch:
+        #     task_rep = gaze_emb
+        # else:
+        #     task_rep = torch.cat([touch_emb,gaze_emb], axis  = -1)
+        # print("task rep shape: ", task_rep.shape)
+        # print('tr: ', task_rep.shape)
+        # task_rep = torch.cat([task_rep, add_data], axis = -1)
+
+        # pred = self.decoder(task_rep)
+        # print('pred: ', pred)
+        # import sys
+        # sys.exit()
         return touch_gaze_emb
 
 class CORE(nn.Module):
@@ -184,6 +201,7 @@ class LOSS(nn.Module):
     def compute_reward(self, predict, label):
         pred = 1*(torch.sigmoid(predict)>0.5)
         return (label.detach()==pred.detach()).squeeze().float() # reward is 1 if the classification is correct and zero otherwise
+
 
 
     def forward(self, predict, label, logpi):

@@ -9,7 +9,7 @@ from torch.utils.data import DataLoader
 import numpy as np
 from torch.distributions.normal import Normal
 from models.RAM_ASD_TD_cat import MODEL, LOSS, adjust_learning_rate
-from data.merged_instance_generator import ASDTDTaskGenerator
+from data.merged_instance_generator_cat import ASDTDTaskGenerator
 from utilFiles.the_args import get_seed
 from utilFiles.set_deterministic import make_deterministic
 
@@ -36,7 +36,8 @@ train_dl = DataLoader(ASDTDTaskGenerator("train", data_path="dataset", args = ar
 test_dl = DataLoader(ASDTDTaskGenerator("test", data_path="dataset", args = args),batch_size=1,shuffle=True)
 
 
-T = 5
+
+T = 7
 lr = 0.0001
 std = 0.25
 # scale = 1
@@ -68,7 +69,9 @@ def save_to_csv(args, all_dicts, iter=0):
 
 
 
-for epoch in range(1000):
+
+for epoch in range(500):
+
     '''
     Training
     '''
@@ -102,7 +105,7 @@ for epoch in range(1000):
 
     train_dict = {
         'Epoch' : epoch,
-        'Train acc': train_reward *100 / len(train_dl.dataset),
+        'Train acc': train_reward * 100 / len(train_dl.dataset),
         'Train Action Loss': train_aloss / len(train_dl.dataset),
         'Train Location Loss': train_lloss / len(train_dl.dataset),
         'Train Baseline Loss': train_bloss / len(train_dl.dataset),
@@ -152,10 +155,10 @@ for epoch in range(1000):
 
     test_dict = {
         'Epoch': epoch,
-        'Test Accuracy (%)': test_reward * 100 / len(train_dl.dataset),
-        'Test Action Loss': test_aloss / len(train_dl.dataset),
-        'Test Location Loss': test_lloss / len(train_dl.dataset),
-        'Test Baseline Loss': test_bloss / len(train_dl.dataset),
+        'Test Accuracy (%)': test_reward * 100 / len(test_dl.dataset),
+        'Test Action Loss': test_aloss / len(test_dl.dataset),
+        'Test Location Loss': test_lloss / len(test_dl.dataset),
+        'Test Baseline Loss': test_bloss / len(test_dl.dataset),
         'Test Accuracy': num_correct / count,
         'Test ASD Accuracy': num_correct_asd / count_asd,
         'Test TD Accuracy': num_correct_td / count_td,

@@ -92,5 +92,3 @@ for epoch in range(1,101):
           test_lloss / len(test_loader.dataset), 
           test_bloss / len(test_loader.dataset),
           test_reward *100/ len(test_loader.dataset)))
-
-

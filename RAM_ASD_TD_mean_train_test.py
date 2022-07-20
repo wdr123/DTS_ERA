@@ -8,7 +8,6 @@ from torchvision.utils import save_image
 from torch.utils.data import DataLoader
 import numpy as np
 from torch.distributions.normal import Normal
-from models.RAM_ASD_TD_mean import MODEL, LOSS, adjust_learning_rate
 from data.merged_instance_generator_mean import ASDTDTaskGenerator
 from utilFiles.the_args import get_seed
 from utilFiles.set_deterministic import make_deterministic
@@ -29,11 +28,18 @@ kwargs = {'num_workers': 1, 'pin_memory': True} if device.type=='cuda' else {}
 #                                            transform=transforms.Compose([transforms.ToTensor(),transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),])),
 #                                            batch_size=batch_size, shuffle=True, **kwargs)
 
+if args.weighted:
+    from models.RAM_ASD_TD_wmean import MODEL, LOSS
+    print("weighted")
+else:
+    from models.RAM_ASD_TD_mean import MODEL, LOSS
+
 #Data Loaders
 bs = 16
 train_dl = DataLoader(ASDTDTaskGenerator("train", data_path="dataset", args = args),batch_size=bs,shuffle=True)
 # val_dl = DataLoader(ASDTDTaskGenerator("val", seed = args.seed),batch_size=1,shuffle=True)
 test_dl = DataLoader(ASDTDTaskGenerator("test", data_path="dataset", args = args),batch_size=1,shuffle=True)
+
 
 
 T = 5
@@ -152,12 +158,13 @@ for epoch in range(1000):
           test_bloss / len(test_dl.dataset),
           test_reward *100/ len(test_dl.dataset)))
 
+
     test_dict = {
         'Epoch': epoch,
-        'Test Accuracy (%)': test_reward * 100 / len(train_dl.dataset),
-        'Test Action Loss': test_aloss / len(train_dl.dataset),
-        'Test Location Loss': test_lloss / len(train_dl.dataset),
-        'Test Baseline Loss': test_bloss / len(train_dl.dataset),
+        'Test Accuracy (%)': test_reward * 100 / len(test_dl.dataset),
+        'Test Action Loss': test_aloss / len(test_dl.dataset),
+        'Test Location Loss': test_lloss / len(test_dl.dataset),
+        'Test Baseline Loss': test_bloss / len(test_dl.dataset),
         'Test Accuracy': num_correct / count,
         'Test ASD Accuracy': num_correct_asd / count_asd,
         'Test TD Accuracy': num_correct_td / count_td,
