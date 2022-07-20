@@ -36,8 +36,9 @@ class RETINA(nn.Module):
         # 1. extract smaller scale patches from the center of the higher scale patches.
         # 2. resize the extracted patches to the lowest scale.
         # 3. stack patches from all scales.
-       
-        out = [F.interpolate(patch, size=2*self.hw, mode='bilinear', align_corners = True)]   # step 2 and 3 for the highest scale
+
+        out\
+            = [F.interpolate(patch, size=2*self.hw, mode='bilinear', align_corners = True)]   # step 2 and 3 for the highest scale
         cntr = int(patch.size(2)/2)
         halfsz = cntr
         for s in range(self.scale-1):
@@ -70,7 +71,7 @@ class GLIMPSE(nn.Module):
         hg = F.relu(self.fc_ro(ro))                  # hg = fg(ro)
         hl = F.relu(self.fc_lc(l))                   # hl = fl(l)
         g  = F.relu(self.fc_hg(hg)+self.fc_hl(hl))   # g = fg(hg,hl)
-        return g
+        return g                                     # g: B*256
 
 class CORE(nn.Module):
     '''
@@ -101,7 +102,7 @@ class LOCATION(nn.Module):
         l = pi.sample()                 # sample from the Gaussian 
         logpi = pi.log_prob(l)          # compute log probability of the sample
         l = torch.tanh(l)               # squeeze location to ensure sensing within the boundaries of an image
-        return logpi, l
+        return logpi, l                 # logpi, l: B*2
 
 class ACTION(nn.Module):
     '''

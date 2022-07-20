@@ -9,7 +9,8 @@ import numpy as np
 from torch.distributions.normal import Normal
 from RAM import MODEL, LOSS, adjust_learning_rate
 
-                
+
+
 batch_size = 128
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
