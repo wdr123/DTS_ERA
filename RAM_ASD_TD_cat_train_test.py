@@ -9,7 +9,7 @@ from torch.utils.data import DataLoader
 import numpy as np
 from torch.distributions.normal import Normal
 from models.RAM_ASD_TD_cat import MODEL, LOSS, adjust_learning_rate
-from data.merged_instance_generator import ASDTDTaskGenerator
+from data.merged_instance_generator_cat import ASDTDTaskGenerator
 from utilFiles.the_args import get_seed
 from utilFiles.set_deterministic import make_deterministic
 
@@ -102,7 +102,7 @@ for epoch in range(500):
 
     train_dict = {
         'Epoch' : epoch,
-        'Train acc': train_reward *100 / len(train_dl.dataset),
+        'Train acc': train_reward * 100 / len(train_dl.dataset),
         'Train Action Loss': train_aloss / len(train_dl.dataset),
         'Train Location Loss': train_lloss / len(train_dl.dataset),
         'Train Baseline Loss': train_bloss / len(train_dl.dataset),

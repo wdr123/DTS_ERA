@@ -8,7 +8,7 @@ from torchvision.utils import save_image
 from torch.utils.data import DataLoader
 import numpy as np
 from torch.distributions.normal import Normal
-from models.RAM_ASD_TD_mean import MODEL, LOSS, adjust_learning_rate
+# from models.RAM_ASD_TD_mean import MODEL, LOSS, adjust_learning_rate
 from data.merged_instance_generator_mean import ASDTDTaskGenerator
 from utilFiles.the_args import get_seed
 from utilFiles.set_deterministic import make_deterministic
@@ -28,6 +28,12 @@ kwargs = {'num_workers': 1, 'pin_memory': True} if device.type=='cuda' else {}
 # test_dl = torch.utils.data.DataLoader(datasets.MNIST('../data', train=False,
 #                                            transform=transforms.Compose([transforms.ToTensor(),transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),])),
 #                                            batch_size=batch_size, shuffle=True, **kwargs)
+if args.weighted:
+    from models.RAM_ASD_TD_wmean import MODEL, LOSS
+    print("weighted")
+else:
+    from models.RAM_ASD_TD_mean import MODEL, LOSS
+
 
 #Data Loaders
 bs = 16

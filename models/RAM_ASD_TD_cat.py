@@ -74,7 +74,7 @@ class GLIMPSE(nn.Module):
             # print('interval', interval[0], interval[1])
             touch_gaze_d.append(touch_gaze_data[batch, interval[0]:interval[1], :].unsqueeze(0))
 
-        touch_gaze_d = torch.cat(touch_gaze_d, dim=0)
+        touch_gaze_d = torch.cat(touch_gaze_d, dim=0).detach()
 
         bs, num_ts, touch_gaze_dim = touch_gaze_d.shape
 
@@ -120,8 +120,8 @@ class CORE(nn.Module):
         # self.fc_g = nn.Linear(256,256)
 
     def forward(self, h, g):
-        # return F.relu(self.fc_h(h) + self.fc_g(g)) # recurrent connection
-        return F.relu(self.fc_h(h))
+        return F.relu(self.fc_h(h) + self.fc_g(g)) # recurrent connection
+        # return F.relu(self.fc_h(h))
 
 class LOCATION(nn.Module):
     '''
@@ -134,12 +134,13 @@ class LOCATION(nn.Module):
         self.fc = nn.Linear(256,1)
 
     def forward(self, h):
+        h = h.detach()
         l_mu = self.fc(h)               # compute mean of Gaussian
         pi = Normal(l_mu, self.std)     # create a Gaussian distribution
         l = pi.sample()                 # sample from the Gaussian 
         logpi = pi.log_prob(l)          # compute log probability of the sample
         l = torch.sigmoid(l)               # squeeze location to ensure sensing within the boundaries of an image
-        return logpi, l                 # logpi, l: B*2
+        return logpi, l.detach()                 # logpi, l: B*2
 
 class ACTION(nn.Module):
     '''
