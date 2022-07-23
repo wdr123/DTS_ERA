@@ -73,8 +73,8 @@ def save_to_csv(args, all_dicts, iter=0):
         writer_obj.writerow(values)
 
 
-for partial in range(1,13):
-    for epoch in range(100):
+
+    for epoch in range(1000):
         '''
         Training
         '''

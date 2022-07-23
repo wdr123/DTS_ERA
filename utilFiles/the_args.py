@@ -7,7 +7,7 @@ def get_seed():
     parser.add_argument('--is_gaze', type = str, default="True",help="Use gaze mode")
     parser.add_argument('--is_lstm', type= str, default="False", help="using lstm in the encoder")
     parser.add_argument('--is_weighted', type=str, default="False", help="using lstm in the encoder")
-    parser.add_argument('--identifier', type= str, default="bs", help="Identifier For Script")
+    parser.add_argument('--identifier', type= str, default="partial", help="Identifier For Script")
     args = parser.parse_args()
     args.is_touch = args.is_touch.lower() == "true"
     args.is_gaze = args.is_gaze.lower() == "true"
