@@ -1,3 +1,8 @@
 */__pychache__
+*/*/*.pyc
+*/__pycache__*
+data/__pycache*
 .idea
 data/dataset*
+data/Fine_grain*
+data/Final_Ds*
