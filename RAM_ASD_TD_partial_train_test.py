@@ -19,9 +19,9 @@ from utilFiles.set_deterministic import make_deterministic
 
 
 assert torch.cuda.is_available()
-# batch_size = 128
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 args, _ = get_seed()
+device = torch.device(f"cuda:{args.gpu}" if torch.cuda.is_available() else "cpu")
+
 make_deterministic(seed=args.seed)
 kwargs = {'num_workers': 1, 'pin_memory': True} if device.type=='cuda' else {}
 # train_dl = torch.utils.data.DataLoader(datasets.MNIST('../data', train=True,

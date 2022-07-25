@@ -2,6 +2,7 @@ import argparse
 
 def get_seed():
     parser = argparse.ArgumentParser()
+    parser.add_argument('--gpu', type=int, default=0, help="GPU index used for the code")
     parser.add_argument('--seed', type = int, default=18,help="Seed for the code")
     parser.add_argument('--is_touch', type = str, default="True",help="Use Touch mode")
     parser.add_argument('--is_gaze', type = str, default="True",help="Use gaze mode")
