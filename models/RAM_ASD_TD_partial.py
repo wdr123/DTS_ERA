@@ -26,19 +26,23 @@ class GLIMPSE(nn.Module):
         # self._is_gaze = is_gaze
         self.window_size = window_size
 
-        latent_dim = 128
+        latent_dim = 512
         # decoder_input = 64
 
         touch_gaze_inp = 7
 
         touch_inp = 3
         gaze_inp = 4
+
+        self.touch_lstm = nn.LSTM(input_size=touch_inp, hidden_size=latent_dim, num_layers=1, batch_first=True)
+        self.gaze_lstm = nn.LSTM(input_size=gaze_inp, hidden_size=latent_dim, num_layers=1, batch_first=True)
+
         # if not is_touch or not is_gaze:
         #     decoder_input = 32
 
         self.touch_encoder = nn.Sequential(
             collections.OrderedDict([
-                ("touchlin1", nn.Linear(touch_inp, latent_dim)),
+                # ("touchlin1", nn.Linear(touch_inp, latent_dim)),
                 ("touchrelu1", nn.ReLU()),
                 ("touchlin2", nn.Linear(latent_dim, latent_dim)),
             ])
@@ -46,7 +50,7 @@ class GLIMPSE(nn.Module):
 
         self.gaze_encoder = nn.Sequential(
             collections.OrderedDict([
-                ("gazelin1", nn.Linear(gaze_inp, latent_dim)),
+                # ("gazelin1", nn.Linear(gaze_inp, latent_dim)),
                 ("gazerelu1", nn.ReLU()),
                 ("gazelin2", nn.Linear(latent_dim, latent_dim)),
             ])
@@ -65,12 +69,14 @@ class GLIMPSE(nn.Module):
         bs, num_ts, touch_dim = touch_d.shape
         _, _, gaze_dim = gaze_d.shape
 
-        touch_d = touch_d.view(bs * num_ts, touch_dim)
-        gaze_d = gaze_d.view(bs * num_ts, gaze_dim)
+        # touch_d = touch_d.view(bs * num_ts, touch_dim)
+        # gaze_d = gaze_d.view(bs * num_ts, gaze_dim)
+        touch_output, touch_status = self.touch_lstm(touch_d)
+        gaze_output, gaze_status = self.gaze_lstm(gaze_d)
 
         # Get the shape of input
-        touch_emb = self.touch_encoder(touch_d)
-        gaze_emb = self.gaze_encoder(gaze_d)
+        touch_emb = self.touch_encoder(touch_output)
+        gaze_emb = self.gaze_encoder(gaze_output)
         # print("first: ", touch_emb.shape)
         touch_emb = touch_emb.view(bs, num_ts, touch_emb.shape[-1])
         gaze_emb = gaze_emb.view(bs, num_ts, gaze_emb.shape[-1])
@@ -113,8 +119,8 @@ class CORE(nn.Module):
     def __init__(self):
         super(CORE, self).__init__()
 
-        self.fc_h = nn.Linear(512, 512)
-        self.fc_g = nn.Linear(512,512)
+        self.fc_h = nn.Linear(2048, 2048)
+        self.fc_g = nn.Linear(2048,2048)
 
     def forward(self, h, g):
         return F.relu(self.fc_h(h) + self.fc_g(g)) # recurrent connection
@@ -128,7 +134,7 @@ class LOCATION(nn.Module):
         super(LOCATION, self).__init__()
 
         self.std = std
-        self.fc = nn.Linear(512,1)
+        self.fc = nn.Linear(2048,1)
 
     def forward(self, h):
         h = h.detach()
@@ -148,7 +154,7 @@ class ACTION(nn.Module):
     def __init__(self):
         super(ACTION, self).__init__()
 
-        self.hidden = nn.Linear(512,32)
+        self.hidden = nn.Linear(2048,32)
         self.fc = nn.Linear(32,1)
 
     def forward(self, h):
@@ -169,7 +175,7 @@ class MODEL(nn.Module):
         self.action = ACTION()
 
     def initialize(self, B, device):
-        self.state = torch.zeros(B,512).to(device)    # initialize states of the core network
+        self.state = torch.zeros(B,2048).to(device)    # initialize states of the core network
         self.l = torch.rand((B,1)).to(device)   # start with a glimpse at random location
 
     def forward(self, touch_data, gaze_data):

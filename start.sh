@@ -1,7 +1,7 @@
 #!/bin/bash
 echo "Bash version ${BASH_VERSION}..."
 
-for i in {0..20..1}
+for i in {10..20..2}
 do
 #  if [ $1 == "mean" ]
 #  then
@@ -20,7 +20,7 @@ do
   then
     python RAM_ASD_TD_partial_train_test.py --identifier partial --seed $i
   else
-    python RAM_ASD_TD_partial_train_test.py --seed $i
+    python RAM_ASD_TD_partial_train_test.py --identifier partial --seed $i
   fi
 
 done

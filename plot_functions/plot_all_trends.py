@@ -22,7 +22,7 @@ for seed in range(1,21):
                 data_path = f"/home/dw7445/Projects/Recurrent-Model-of-Visual-Attention/results/partial/12/Save_partial_Parital12_Batch16_sd{seed}.csv"
                 # data_path = f"/home/deep/Desktop/ASDvsTDNP/ASD_SELF/ResApr22/Save_Mil.Apr19.NoPD._Batch8_sd{seed}_t_{t}_g_{g}_lstm_{lstm}.csv"
                 #data_path = f"/home/deep/Desktop/ASDvsTDNP/ASD_SELF/ResApr22/Save_Mil.Apr19.1734.TK.NoPD._TK_sd{seed}_t_{t}_g_{g}_lstm_{lstm}"
-                #data_path +="/results.csv"
+                #data_path += "/results.csv"
                 
                 # title = "Both"
                 if seed in range(1,20):
