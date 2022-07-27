@@ -80,7 +80,7 @@ def save_to_csv(args, all_dicts, partial, iter=0):
 for partial in np.arange(12, 13):
     train_ds.get_partial(partial)
 
-    for epoch in range(1000):
+    for epoch in range(10000):
         '''
         Training
         '''
