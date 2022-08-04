@@ -39,7 +39,7 @@ do
 #  fi
 #
   if [[ $first = "no_attention" ]]; then
-      python RAM_ASD_TD_mean_train_test.py --gpu 0 --latent $d --model no_attention --seed $i
+      python RAM_ASD_TD_partial_train_test.py --gpu 0 --latent $d --model no_attention --seed $i
   elif [[ $first = "attention_only" ]]; then
       python RAM_ASD_TD_partial_train_test.py --gpu 1 --latent $d --model attention_only --seed $i
   elif [[ $second = "multiple" ]]; then
@@ -47,9 +47,9 @@ do
   elif [[ $second = "combine" ]]; then
       python RAM_ASD_TD_partial_train_test.py --gpu 3 --latent $d --model combine --attention combine --seed $i
   elif [[ $second = "sequential10" ]]; then
-        python RAM_ASD_TD_partial_train_test.py --gpu 4 --latent $d --model combine --attention sequential --seed $i
+      python RAM_ASD_TD_partial_train_test.py --gpu 4 --latent $d --model combine --attention sequential --seed $i
   elif [[ $second = "sequential20" ]]; then
-        python RAM_ASD_TD_partial_train_test.py --gpu 5 --latent $d --model combine --attention sequential --selen 20 --seed $i
+      python RAM_ASD_TD_partial_train_test.py --gpu 5 --latent $d --model combine --attention sequential --selen 20 --seed $i
   fi
 
 done
