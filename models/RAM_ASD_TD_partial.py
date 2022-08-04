@@ -11,7 +11,7 @@ class GLIMPSE(nn.Module):
     The encoder
     '''
 
-    def __init__(self, window_size):
+    def __init__(self, args):
         '''
         ANP Encoder
         Can realize the CNP with identity attention
@@ -24,9 +24,12 @@ class GLIMPSE(nn.Module):
 
         # self._is_touch = is_touch
         # self._is_gaze = is_gaze
-        self.window_size = window_size
+        self.selen = args.selen
+        self.attention = args.attention
+        self.model = args.model
+        self.msize = args.msize
 
-        latent_dim = 512
+        latent_dim = args.latent
         # decoder_input = 64
 
         touch_gaze_inp = 7
@@ -83,23 +86,88 @@ class GLIMPSE(nn.Module):
         touch_emb_mean = torch.mean(touch_emb, dim=1)
         gaze_emb_mean = torch.mean(gaze_emb, dim=1)
 
-        bs_d, num_ts_d, touch_d = touch_emb.shape
-        touch_d = []
-        gaze_d = []
-        for batch in range(bs_d):
-            if int(num_ts_d * l[batch]) + self.window_size > num_ts_d:
-                pos_begin = np.random.randint(0, num_ts_d - self.window_size)
-                pos_end = pos_begin + self.window_size
-                interval = [pos_begin, pos_end]
-            else:
-                interval = [int(num_ts_d * l[batch]), int(num_ts_d * l[batch]) + self.window_size]
+        if self.model not in ['no_attention']:
+            if self.attention.lower()=="sequential":
+                bs_d, num_ts_d, touch_d = touch_emb.shape
+                touch_d = []
+                gaze_d = []
+                for batch in range(bs_d):
+                    if int(num_ts_d * l[batch].squeeze()) + self.selen > num_ts_d:
+                        pos_begin = np.random.randint(0, num_ts_d - self.selen)
+                        pos_end = pos_begin + self.selen
+                        interval = [pos_begin, pos_end]
+                    else:
+                        interval = [int(num_ts_d * l[batch]), int(num_ts_d * l[batch]) + self.selen]
 
-            # print('interval', interval[0], interval[1])
-            touch_d.append(touch_emb[batch, interval[0]:interval[1], :].unsqueeze(0))
-            gaze_d.append(gaze_emb[batch, interval[0]:interval[1], :].unsqueeze(0))
+                    # print('interval', interval[0], interval[1])
+                    touch_d.append(touch_emb[batch, interval[0]:interval[1], :].unsqueeze(0))
+                    gaze_d.append(gaze_emb[batch, interval[0]:interval[1], :].unsqueeze(0))
 
-        touch_emb_attn = torch.mean(torch.cat(touch_d, dim=0),dim=1) # bs*touch_emb_dim
-        gaze_emb_attn = torch.mean(torch.cat(gaze_d, dim=0),dim=1) # bs*gaze_emb_dim
+                touch_emb_attn = torch.mean(torch.cat(touch_d, dim=0),dim=1) # bs*touch_emb_dim
+                gaze_emb_attn = torch.mean(torch.cat(gaze_d, dim=0),dim=1) # bs*gaze_emb_dim
+
+                if self.model == "attention_only":
+                    task_rep = torch.cat([touch_emb_attn, gaze_emb_attn], axis=-1)
+                else:
+                    task_rep = torch.cat([touch_emb_mean, touch_emb_attn, gaze_emb_mean, gaze_emb_attn], axis=-1)
+
+            elif self.attention.lower()=="multiple":
+                bs_d, num_ts_d, touch_d = touch_emb.shape
+                touch_d = []
+                gaze_d = []
+                attention_batch = (l*num_ts_d).type(torch.int64) # bs*msize
+                for batch in range(bs_d):
+                    touch_d.append(touch_emb[batch, attention_batch[batch], :].unsqueeze(0)) # 1*msize*touch_emb_dim
+                    gaze_d.append(gaze_emb[batch, attention_batch[batch], :].unsqueeze(0)) # 1*msize*gaze_emb_dim
+                    # print(touch_emb[batch, attention_batch[batch], :].unsqueeze(0).shape)
+
+                touch_emb_attn = torch.mean(torch.cat(touch_d, dim=0), dim=1) # bs*touch_emb_dim
+                gaze_emb_attn = torch.mean(torch.cat(gaze_d, dim=0), dim=1) # bs*gaze_emb_dim
+                # print(touch_emb_attn.shape)
+
+                if self.model == "attention_only":
+                    task_rep = torch.cat([touch_emb_attn, gaze_emb_attn], axis=-1)
+                else:
+                    task_rep = torch.cat([touch_emb_mean, touch_emb_attn, gaze_emb_mean, gaze_emb_attn], axis=-1)
+
+            elif self.attention.lower()=="combine":
+                selen = int(self.selen*2 / self.msize)
+                bs_d, num_ts_d, touch_d = touch_emb.shape
+                touch_d = []
+                gaze_d = []
+                touch_data = []
+                gaze_data = []
+
+                for batch in range(bs_d):
+                    attention_batch = (l[batch] * num_ts_d).type(torch.int64)  # msize
+                    for glimpse in range(self.msize):
+                        if attention_batch[glimpse] + selen > num_ts_d:
+                            pos_begin = np.random.randint(0, num_ts_d - selen)
+                            pos_end = pos_begin + selen
+                            interval = [pos_begin, pos_end]
+                        else:
+                            interval = [int(attention_batch[glimpse]), int(attention_batch[glimpse]) + selen]
+
+                        # print(interval)
+
+                        # print('interval', type(interval[0]), type(interval[1]))
+                        touch_d.append(touch_emb[batch, interval[0]:interval[1], :].unsqueeze(0)) # 1*selen*touch_emb_dim
+                        gaze_d.append(gaze_emb[batch, interval[0]:interval[1], :].unsqueeze(0)) # 1*selen*gaze_emb_dim
+                        # print(touch_emb[batch, interval[0]:interval[1], :].unsqueeze(0).shape)
+                    touch_data.append(torch.cat(touch_d, dim=1)) # 1,selen*msize,touch_emb_dim
+                    gaze_data.append(torch.cat(gaze_d, dim=1))  # 1,selen*msize,touch_emb_dim
+                    touch_d = []
+                    gaze_d = []
+                touch_emb_attn = torch.mean(torch.cat(touch_data, dim=0), dim=1)  # bs,selen*msize,touch_emb_dim --> bs,touch_emb_dim
+                gaze_emb_attn = torch.mean(torch.cat(gaze_data, dim=0), dim=1)  # bs,selen*msize,gaze_emb_dim --> bs, gaze_emb_dim
+
+                if self.model == "attention_only":
+                    task_rep = torch.cat([touch_emb_attn, gaze_emb_attn], axis=-1)
+                else:
+                    task_rep = torch.cat([touch_emb_mean, touch_emb_attn, gaze_emb_mean, gaze_emb_attn], axis=-1)
+
+        elif self.model == "no_attention":
+            task_rep = torch.cat([touch_emb_mean, gaze_emb_mean,], axis=-1)
 
         # print("aggregate: ", touch_emb.shape, gaze_emb.shape)
         # if not self._is_gaze:
@@ -107,8 +175,6 @@ class GLIMPSE(nn.Module):
         # elif not self._is_touch:
         #     task_rep = torch.cat([gaze_emb_mean, gaze_emb_attn], axis=-1)
         # else:
-        task_rep = torch.cat([touch_emb_mean,touch_emb_attn,gaze_emb_mean,gaze_emb_attn], axis=-1)
-
 
         return task_rep
 
@@ -116,11 +182,11 @@ class CORE(nn.Module):
     '''
     Core network is a recurrent network which maintains a behavior state.
     '''
-    def __init__(self):
+    def __init__(self, latent_dim):
         super(CORE, self).__init__()
 
-        self.fc_h = nn.Linear(2048, 2048)
-        self.fc_g = nn.Linear(2048,2048)
+        self.fc_h = nn.Linear(latent_dim, latent_dim)
+        self.fc_g = nn.Linear(latent_dim,latent_dim)
 
     def forward(self, h, g):
         return F.relu(self.fc_h(h) + self.fc_g(g)) # recurrent connection
@@ -130,20 +196,19 @@ class LOCATION(nn.Module):
     '''
     Location network learns policy for sensing locations.
     '''
-    def __init__(self, std):
+    def __init__(self, msize, latent_dim):
         super(LOCATION, self).__init__()
 
-        self.std = std
-        self.fc = nn.Linear(2048,1)
+        self.fc = nn.Linear(latent_dim, msize)
 
-    def forward(self, h):
+    def forward(self, h, std):
         h = h.detach()
-        l_mu = self.fc(h)               # compute mean of Gaussian
-        pi = Normal(l_mu, self.std)     # create a Gaussian distribution
-        l = pi.sample()                 # sample from the Gaussian 
+        l_mu = torch.tanh(self.fc(h))     # compute mean of Gaussian
+        pi = Normal(l_mu, std)     # create a Gaussian distribution
+        l = pi.sample()                 # sample from the Gaussian
         logpi = pi.log_prob(l)          # compute log probability of the sample
-        l = torch.sigmoid(l)               # squeeze location to ensure sensing within the boundaries of an image
-        return logpi, l.detach()                 # logpi, l: B*2
+        l = torch.sigmoid(l)            # squeeze location to ensure sensing within the boundaries of an image
+        return logpi, l.detach()        # logpi, l: B*2
 
 class ACTION(nn.Module):
     '''
@@ -151,10 +216,10 @@ class ACTION(nn.Module):
     In case of classification actions are possible classes.
     This network will be trained with supervised loss in case of classification.
     '''
-    def __init__(self):
+    def __init__(self, latent_dim):
         super(ACTION, self).__init__()
 
-        self.hidden = nn.Linear(2048,32)
+        self.hidden = nn.Linear(latent_dim,32)
         self.fc = nn.Linear(32,1)
 
     def forward(self, h):
@@ -165,25 +230,35 @@ class MODEL(nn.Module):
     '''
     Model combines all the previous elements
     '''
-    def __init__(self, window_size, std):
+    def __init__(self, args):
         super(MODEL, self).__init__()
+        if args.model in ["no_attention","attention_only"]:
+            self.hidden = args.latent * 2
+        elif args.model == "combine":
+            self.hidden = args.latent * 4
 
+        self.msize = 1
+        if (args.model not in ["no_attention"]) and args.attention != "sequential":
+            self.msize = args.msize
         # self.glimps = GLIMPSE(im_sz, channel, glimps_width, scale)
-        self.glimps = GLIMPSE(window_size)
-        self.core   = CORE()
-        self.location = LOCATION(std)
-        self.action = ACTION()
+        self.std = args.std
+
+        self.glimps = GLIMPSE(args)
+        self.core   = CORE(self.hidden)
+        self.location = LOCATION(self.msize, self.hidden)
+        self.action = ACTION(self.hidden)
 
     def initialize(self, B, device):
-        self.state = torch.zeros(B,2048).to(device)    # initialize states of the core network
-        self.l = torch.rand((B,1)).to(device)   # start with a glimpse at random location
+        self.state = torch.zeros(B, self.hidden).to(device)    # initialize states of the core network
+        self.l = torch.rand((B, self.msize)).to(device)   # start with a glimpse at random location
 
-    def forward(self, touch_data, gaze_data):
-        # g = self.glimps(x,self.l)
-        # glimpse encoding
+    def forward(self, touch_data, gaze_data, epoch=0):
+        # g = self.glimps(x,self.l) # glimpse encoding
+        if epoch in [2000, 5000, 8000]:
+            self.std = self.std / 2
         g = self.glimps(touch_data, gaze_data, self.l)
         self.state = self.core(self.state, g)         # update state of a core network based on new glimpse
-        logpi, self.l = self.location(self.state)     # predict location of next glimpse
+        logpi, self.l = self.location(self.state, self.std)     # predict location of next glimpse
         a = self.action(self.state)                   # predict task specific actions
         return logpi, a
 
@@ -231,7 +306,9 @@ def adjust_learning_rate(optimizer, epoch, lr, decay_rate):
     '''
     Decay learning rate
     '''
-    lr = lr * (decay_rate ** (epoch))
+    if epoch in [6000,8000]:
+        # lr = lr * (decay_rate ** (epoch))
+        lr = lr * decay_rate
     for param_group in optimizer.param_groups:
         param_group['lr'] = lr
 

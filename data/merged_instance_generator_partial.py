@@ -160,12 +160,12 @@ class ASDTDTaskGenerator(object):
         class_level = torch.tensor([self.ind_to_class_level[user_ep_id]])
 
         gaze_start = 1
-        if self.args.is_lstm: #No time feature
+        # if self.args.is_lstm: #No time feature
             # gaze_start = 1
-            touch_data = merged_data[:,-3:]
-        else:
+        touch_data = merged_data[:,-3:]
+        # else:
             # touch_data = torch.cat((merged_data[:,:1],merged_data[:,-3:]),1)
-            touch_data = merged_data[:, -3:]
+            # touch_data = merged_data[:, -3:]
         # gaze_data = merged_data[:,1:-3]
         gaze_data = merged_data[:,gaze_start:-5] #Don't use pd
         # gaze_data = merged_data[:,gaze_start:-7] #-5

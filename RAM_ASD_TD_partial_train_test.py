@@ -12,14 +12,14 @@ from torch.utils.data import DataLoader
 import numpy as np
 from torch.distributions.normal import Normal
 from data.merged_instance_generator_partial import ASDTDTaskGenerator
-from utilFiles.the_args import get_seed
+from utilFiles.the_args import get_args
 from utilFiles.set_deterministic import make_deterministic
 
 
 
 
 assert torch.cuda.is_available()
-args, _ = get_seed()
+args, _ = get_args()
 device = torch.device(f"cuda:{args.gpu}" if torch.cuda.is_available() else "cpu")
 
 make_deterministic(seed=args.seed)
@@ -32,26 +32,26 @@ kwargs = {'num_workers': 1, 'pin_memory': True} if device.type=='cuda' else {}
 #                                            batch_size=batch_size, shuffle=True, **kwargs)
 
 
-from models.RAM_ASD_TD_partial import MODEL, LOSS
+from models.RAM_ASD_TD_partial import MODEL, LOSS, adjust_learning_rate
 
 #Data Loaders
 bs = 16
 train_ds = ASDTDTaskGenerator("train", data_path="Fine_grain", args = args)
-train_dl = DataLoader(train_ds,batch_size=bs,shuffle=True)
+train_dl = DataLoader(train_ds,batch_size=bs,shuffle=True, **kwargs)
 test_ds = ASDTDTaskGenerator("test", data_path="Fine_grain", args = args)
-test_dl = DataLoader(test_ds,batch_size=1,shuffle=True)
+test_dl = DataLoader(test_ds,batch_size=1,shuffle=True, **kwargs)
 
 
 
-T = 5
-lr = 0.0001
-std = 0.25
+# T = 5
+# lr = 0.0001
+# std = 0.25
 # scale = 1
-decay = 0.95
-model = MODEL(window_size= 3, std = std).to(device)
-loss_fn = LOSS(T=T, gamma=1, device=device).to(device)
+# decay = 0.5
+model = MODEL(args).to(device)
+loss_fn = LOSS(T=args.T, gamma=args.gamma, device=device).to(device)
 # optimizer = optim.Adam(list(model.parameters())+list(loss_fn.parameters()), lr=lr)
-optimizer = optim.Adam(list(model.parameters())+list(loss_fn.parameters()), lr=lr,weight_decay=1e-5)
+optimizer = optim.Adam(list(model.parameters())+list(loss_fn.parameters()), lr=args.lr, weight_decay=1e-5)
 print(model)
 
 import csv
@@ -64,7 +64,7 @@ def save_to_csv(args, all_dicts, partial, iter=0):
 
     if not os.path.exists(f'./results/partial/{partial}'):
         os.makedirs(f'./results/partial/{partial}')
-    save_model_name = f"Save_{args.identifier}_Parital{partial}_Batch16_sd{args.seed}.csv"
+    save_model_name = f"Save_{args.identifier}_latent{args.latent}_{args.model}_{args.attention}_selen{args.selen}_msize{args.msize}_time_step{args.T}_sd{args.seed}.csv"
     save_model_path = os.path.join(f'./results/partial/{partial}', save_model_name)
 
     # save_model_name = "Debug.csv"
@@ -84,7 +84,7 @@ for partial in np.arange(12, 13):
         '''
         Training
         '''
-        # adjust_learning_rate(optimizer, epoch, lr, decay)
+        adjust_learning_rate(optimizer, epoch, args.lr, args.weight_decay)
         model.train()
         train_aloss, train_lloss, train_bloss, train_reward = 0, 0, 0, 0
 
@@ -97,10 +97,13 @@ for partial in np.arange(12, 13):
             optimizer.zero_grad()
             model.initialize(touch_data.size(0), device)
             loss_fn.initialize(touch_data.size(0))
-            for _ in range(T):
-                logpi, action = model(touch_data, gaze_data)
+            for _ in range(args.T):
+                logpi, action = model(touch_data, gaze_data, epoch)
                 aloss, lloss, bloss, reward = loss_fn(action, label, logpi)  # loss_fn stores logpi during intermediate time-stamps and returns loss in the last time-stamp
-            loss = aloss+lloss+bloss
+            if args.model == "no_attention":
+                loss = aloss
+            else:
+                loss = aloss + lloss + bloss
             loss.backward()
             optimizer.step()
             train_aloss += aloss.item()
@@ -140,10 +143,13 @@ for partial in np.arange(12, 13):
             label = label.to(device).float()
             model.initialize(touch_data.size(0), device)
             loss_fn.initialize(touch_data.size(0))
-            for _ in range(T):
+            for _ in range(args.T):
                 logpi, action = model(touch_data, gaze_data)
                 aloss, lloss, bloss, reward = loss_fn(action, label, logpi)
-            loss = aloss+lloss+bloss
+            if args.model == "no_attention":
+                loss = aloss
+            else:
+                loss = aloss+lloss+bloss
             test_aloss += aloss.item()
             test_lloss += lloss.item()
             test_bloss += bloss.item()

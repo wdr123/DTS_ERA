@@ -10,12 +10,12 @@ plot_dir = os.path.join(base_dir, 'plots')
 if not os.path.exists(plot_dir):
     os.mkdir(plot_dir)
 
-average_file = average_seed('/home/dw7445/Projects/Recurrent-Model-of-Visual-Attention/results/partial/12')
-for seed in range(1,21):
+# average_file = average_seed('/home/dw7445/Projects/Recurrent-Model-of-Visual-Attention/results/partial/12')
+for seed in range(18,19):
     for t in ["True", "False"][:1]:
         for g in [ "True","False",][:1]:
             for lstm in ["True", "False"][:1]:
-                title = f"gaze: {g}, touch: {t}, lstm: {lstm}, Seed: {seed}"
+                title = f"gaze: {g}, touch: {t}, lstm: {lstm}, Seed: Average"
                 print(title)
                 # data_path = f"/home/deep/Desktop/ASDvsTDNP/ASD_SELF/Incomplete_Apr1/Save_April1_MIL0732_sd{seed}_t_{t}_g_{g}_lstm_{lstm}.csv"
                 # data_path = f"/home/deep/Desktop/ASDvsTDNP/ASD_SELF/ResApr12NoPD/Save_Comp_Apr6_ats_noPD_Batch8_sd{seed}_t_{t}_g_{g}_lstm_{lstm}.csv"
@@ -56,11 +56,11 @@ for seed in range(1,21):
                 #
                 # plt.show()
 
-                num_iteration_av = 1
+                num_iteration_av = 10
                 for metric in ['Train acc', 'Test Accuracy (%)']:
-                    to_plot = [float(x) for x in data1[f'{metric}'].to_numpy()[:1000]]
+                    to_plot = [float(x) for x in data1[f'{metric}'].to_numpy()[:10000]]
                     if metric  == 'Test Accuracy (%)':
-                        avg_acc += to_plot[998]
+                        avg_acc += to_plot[5000]
                         count += 1
                         # print(to_plot)
                     plot_this = []
@@ -81,7 +81,7 @@ for seed in range(1,21):
                 plt.clf()
 
                 for metric in ['Train Action Loss', 'Test Action Loss']:
-                    to_plot = [float(x) for x in data1[f'{metric}'].to_numpy()[:1000]]
+                    to_plot = [float(x) for x in data1[f'{metric}'].to_numpy()[:10000]]
                     plot_this = []
                     ct_10, sm = 0, 0
                     for x in to_plot:
@@ -98,7 +98,7 @@ for seed in range(1,21):
                 plt.clf()
 
                 for metric in ['Train Location Loss', 'Test Location Loss']:
-                    to_plot = [float(x) for x in data1[f'{metric}'].to_numpy()[:1000]]
+                    to_plot = [float(x) for x in data1[f'{metric}'].to_numpy()[:10000]]
                     plot_this = []
                     ct_10, sm = 0, 0
                     for x in to_plot:
