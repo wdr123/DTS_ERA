@@ -131,7 +131,7 @@ class GLIMPSE(nn.Module):
                     task_rep = torch.cat([touch_emb_mean, touch_emb_attn, gaze_emb_mean, gaze_emb_attn], axis=-1)
 
             elif self.attention.lower()=="combine":
-                selen = int(self.selen*2 / self.msize)
+                selen = self.selen
                 bs_d, num_ts_d, touch_d = touch_emb.shape
                 touch_d = []
                 gaze_d = []
@@ -204,7 +204,7 @@ class LOCATION(nn.Module):
     def forward(self, h, std):
         h = h.detach()
         l_mu = torch.tanh(self.fc(h))     # compute mean of Gaussian
-        pi = Normal(l_mu, std)     # create a Gaussian distribution
+        pi = Normal(l_mu, std)          # create a Gaussian distribution
         l = pi.sample()                 # sample from the Gaussian
         logpi = pi.log_prob(l)          # compute log probability of the sample
         l = torch.sigmoid(l)            # squeeze location to ensure sensing within the boundaries of an image
@@ -252,9 +252,9 @@ class MODEL(nn.Module):
         self.state = torch.zeros(B, self.hidden).to(device)    # initialize states of the core network
         self.l = torch.rand((B, self.msize)).to(device)   # start with a glimpse at random location
 
-    def forward(self, touch_data, gaze_data, epoch=0):
+    def forward(self, touch_data, gaze_data, epoch=0, t=0):
         # g = self.glimps(x,self.l) # glimpse encoding
-        if epoch in [2000, 5000, 8000]:
+        if (epoch in [2000, 5000, 8000]) and t==0:
             self.std = self.std / 2
         g = self.glimps(touch_data, gaze_data, self.l)
         self.state = self.core(self.state, g)         # update state of a core network based on new glimpse

@@ -80,7 +80,7 @@ def save_to_csv(args, all_dicts, partial, iter=0):
 for partial in np.arange(12, 13):
     train_ds.get_partial(partial)
 
-    for epoch in range(10000):
+    for epoch in range(5001):
         '''
         Training
         '''
@@ -97,8 +97,8 @@ for partial in np.arange(12, 13):
             optimizer.zero_grad()
             model.initialize(touch_data.size(0), device)
             loss_fn.initialize(touch_data.size(0))
-            for _ in range(args.T):
-                logpi, action = model(touch_data, gaze_data, epoch)
+            for t in range(args.T):
+                logpi, action = model(touch_data, gaze_data, epoch, t)
                 aloss, lloss, bloss, reward = loss_fn(action, label, logpi)  # loss_fn stores logpi during intermediate time-stamps and returns loss in the last time-stamp
             if args.model == "no_attention":
                 loss = aloss
@@ -143,7 +143,7 @@ for partial in np.arange(12, 13):
             label = label.to(device).float()
             model.initialize(touch_data.size(0), device)
             loss_fn.initialize(touch_data.size(0))
-            for _ in range(args.T):
+            for t in range(args.T):
                 logpi, action = model(touch_data, gaze_data)
                 aloss, lloss, bloss, reward = loss_fn(action, label, logpi)
             if args.model == "no_attention":
@@ -191,4 +191,8 @@ for partial in np.arange(12, 13):
 
         save_to_csv(args, all_dicts_list, partial, epoch)
 
+        if epoch % 2000 == 0:
+            torch.save(model.state_dict(), f'./results/checkpoint/RAM_{epoch//2000}_{args.identifier}_latent{args.latent}_{args.model}_{args.attention}_selen{args.selen}_msize{args.msize}_time_step{args.T}_sd{args.seed}.pth')
+            torch.save(loss_fn.state_dict(),
+                       f'./results/checkpoint/LOSS_{epoch//2000}_{args.identifier}_latent{args.latent}_{args.model}_{args.attention}_selen{args.selen}_msize{args.msize}_time_step{args.T}_sd{args.seed}.pth')
 

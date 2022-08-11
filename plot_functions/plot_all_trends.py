@@ -11,21 +11,28 @@ if not os.path.exists(plot_dir):
     os.mkdir(plot_dir)
 
 # average_file = average_seed('/home/dw7445/Projects/Recurrent-Model-of-Visual-Attention/results/partial/12')
-for seed in range(18,19):
-    for t in ["True", "False"][:1]:
-        for g in [ "True","False",][:1]:
-            for lstm in ["True", "False"][:1]:
-                title = f"gaze: {g}, touch: {t}, lstm: {lstm}, Seed: Average"
+for seed in range(0,1):
+    for latent in [128,256,512]:
+        for model in [ 'attention_only', 'no_attention','combine']:
+            for attention in ["combine", "multiple", 'sequential'][2:]:
+                if (model == 'attention_only' or model=='no_attention') and attention!= 'combine':
+                    continue
+
+                if (latent==512 or latent==256) and model=='attention_only':
+                    continue
+                if (latent==512) and model=='combine' and attention=='combine':
+                    continue
+                title = f"latent: {latent}, structure: {model}, attention: {attention}, selen:20, Seed: Average"
                 print(title)
                 # data_path = f"/home/deep/Desktop/ASDvsTDNP/ASD_SELF/Incomplete_Apr1/Save_April1_MIL0732_sd{seed}_t_{t}_g_{g}_lstm_{lstm}.csv"
                 # data_path = f"/home/deep/Desktop/ASDvsTDNP/ASD_SELF/ResApr12NoPD/Save_Comp_Apr6_ats_noPD_Batch8_sd{seed}_t_{t}_g_{g}_lstm_{lstm}.csv"
-                data_path = f"/home/dw7445/Projects/Recurrent-Model-of-Visual-Attention/results/partial/12/Save_partial_Parital12_Batch16_sd{seed}.csv"
+                data_path = f"/home/dw7445/Projects/Recurrent-Model-of-Visual-Attention/results/partial/12/Save_partial_latent{latent}_{model}_{attention}_selen20_msize10_time_step5_sd{seed}.csv"
                 # data_path = f"/home/deep/Desktop/ASDvsTDNP/ASD_SELF/ResApr22/Save_Mil.Apr19.NoPD._Batch8_sd{seed}_t_{t}_g_{g}_lstm_{lstm}.csv"
                 #data_path = f"/home/deep/Desktop/ASDvsTDNP/ASD_SELF/ResApr22/Save_Mil.Apr19.1734.TK.NoPD._TK_sd{seed}_t_{t}_g_{g}_lstm_{lstm}"
                 #data_path += "/results.csv"
                 
                 # title = "Both"
-                if seed in range(1,20):
+                if seed in range(0,20):
                     data1 = pd.read_csv(data_path)
                 else:
                     data1 = average_file
@@ -58,9 +65,9 @@ for seed in range(18,19):
 
                 num_iteration_av = 10
                 for metric in ['Train acc', 'Test Accuracy (%)']:
-                    to_plot = [float(x) for x in data1[f'{metric}'].to_numpy()[:10000]]
+                    to_plot = [float(x) for x in data1[f'{metric}'].to_numpy()[:2000]]
                     if metric  == 'Test Accuracy (%)':
-                        avg_acc += to_plot[5000]
+                        avg_acc += to_plot[1000]
                         count += 1
                         # print(to_plot)
                     plot_this = []
@@ -77,11 +84,11 @@ for seed in range(18,19):
                 plt.xlabel(f"Epoch (*{num_iteration_av})")
                 plt.title(title)
                 plt.legend()
-                plt.savefig(os.path.join(plot_dir, f"Jul25_{title}_acc.png"))
+                plt.savefig(os.path.join(plot_dir, f"Aug04_{title}_acc.png"))
                 plt.clf()
 
                 for metric in ['Train Action Loss', 'Test Action Loss']:
-                    to_plot = [float(x) for x in data1[f'{metric}'].to_numpy()[:10000]]
+                    to_plot = [float(x) for x in data1[f'{metric}'].to_numpy()[:2000]]
                     plot_this = []
                     ct_10, sm = 0, 0
                     for x in to_plot:
@@ -98,7 +105,7 @@ for seed in range(18,19):
                 plt.clf()
 
                 for metric in ['Train Location Loss', 'Test Location Loss']:
-                    to_plot = [float(x) for x in data1[f'{metric}'].to_numpy()[:10000]]
+                    to_plot = [float(x) for x in data1[f'{metric}'].to_numpy()[:2000]]
                     plot_this = []
                     ct_10, sm = 0, 0
                     for x in to_plot:

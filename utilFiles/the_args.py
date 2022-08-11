@@ -16,7 +16,7 @@ def get_args():
     parser.add_argument('--identifier', type= str, default="partial", help="Identifier For Script")
     parser.add_argument('--attention', choices=['combine','sequential','multiple'], default='combine',  help="attention way")
     parser.add_argument('--selen', type=int, default=10, help="sequential length")
-    parser.add_argument('--msize', type=int, default=10, help="multiple size")
+    parser.add_argument('--msize', type=int, default=2, help="multiple size")
     parser.add_argument('--model', choices=['combine', 'no_attention', 'attention_only'], default='combine', help="model structure")
     parser.add_argument('--latent', type=int, default=512, help='latent dimension')
     args = parser.parse_args()
