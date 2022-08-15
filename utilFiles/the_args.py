@@ -4,6 +4,7 @@ def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--gpu', type=int, default=0, help="GPU index used for the code")
     parser.add_argument('--seed', type = int, default=18,help="Seed for the code")
+    parser.add_argument('--lsub', type=int, default=60, help="Sampled sub trajectory length")
     # parser.add_argument('--is_touch', type = str, default="True",help="Use Touch mode")
     # parser.add_argument('--is_gaze', type = str, default="True",help="Use gaze mode")
     # parser.add_argument('--is_lstm', type= str, default="False", help="using lstm in the encoder")

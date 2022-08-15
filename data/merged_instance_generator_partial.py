@@ -35,14 +35,14 @@ class ASDTDTaskGenerator(object):
         self.ind_to_av_lev = {}
         self.ind_to_class_level = {}
 
-        self.num_window = 60
+        self.num_window = args.lsub
         self.partial = 0
         self.setname = setname
 
         #Player id
         count = 0
         players_list = sorted(os.listdir(path)) #In train or test the users [p01, p02,...]
-        print(players_list)
+        # print(players_list)
         self.num_asd_user_levls = 0
         for index, player_name in enumerate(players_list): #[P01, P02,...]
             player_path = os.path.join(path, player_name)
@@ -96,37 +96,41 @@ class ASDTDTaskGenerator(object):
 
     def __getitem__(self, idx):
         #Randomly select a player and then the corresponding episode
-        if self.setname in ['train']:
-            asd_flag = td_flag = True
-            merged_path_asd = self.ind_to_path_merged[0]
-            merged_path_td = self.ind_to_path_merged[self.num_asd_user_levls]
-            if(int(merged_path_asd.split('merged')[1].split('.csv')[0])>self.partial):
-                asd_flag = False
-            elif(int(merged_path_td.split('merged')[1].split('.csv')[0]) > self.partial):
-                td_flag = False
-            if asd_flag and (self.task_counter % 2 == 0):
-                user_ep_id = np.random.randint(self.num_asd_user_levls)
-                merged_path = self.ind_to_path_merged[user_ep_id]
-                # print(merged_path.split('merged')[1].split('.csv')[0])
-                while (('merged' in merged_path) and (int(merged_path.split('merged')[1].split('.csv')[0]) > self.partial)):
-                    user_ep_id = np.random.randint(self.num_asd_user_levls)
-                    merged_path = self.ind_to_path_merged[user_ep_id]
-                    # print(merged_path.split('merged')[1].split('.csv')[0])
-                # print("please assert:", self.partial, '>=', merged_path.split('merged')[1].split('.csv')[0])
-
-            elif td_flag:
-                user_ep_id = self.num_asd_user_levls + np.random.randint(self.data_len - self.num_asd_user_levls)
-                merged_path = self.ind_to_path_merged[user_ep_id]
-                # print(merged_path.split('merged')[1].split('.csv')[0])
-                while (('merged' in merged_path) and (int(merged_path.split('merged')[1].split('.csv')[0]) > self.partial)):
-                    user_ep_id = self.num_asd_user_levls + np.random.randint(self.data_len - self.num_asd_user_levls)
-                    merged_path = self.ind_to_path_merged[user_ep_id]
-                    # print(merged_path.split('merged')[1].split('.csv')[0])
-
-            else:
-                return None, None, None
+        # if self.setname in ['train']:
+            # asd_flag = td_flag = True
+            # merged_path_asd = self.ind_to_path_merged[0]
+            # merged_path_td = self.ind_to_path_merged[self.num_asd_user_levls]
+            # if(int(merged_path_asd.split('merged')[1].split('.csv')[0])>self.partial):
+            #     asd_flag = False
+            # elif(int(merged_path_td.split('merged')[1].split('.csv')[0]) > self.partial):
+            #     td_flag = False
+            # if asd_flag and (self.task_counter % 2 == 0):
+            #     user_ep_id = np.random.randint(self.num_asd_user_levls)
+            #     merged_path = self.ind_to_path_merged[user_ep_id]
+            #     # print(merged_path.split('merged')[1].split('.csv')[0])
+            #     while (('merged' in merged_path) and (int(merged_path.split('merged')[1].split('.csv')[0]) > self.partial)):
+            #         user_ep_id = np.random.randint(self.num_asd_user_levls)
+            #         merged_path = self.ind_to_path_merged[user_ep_id]
+            #         # print(merged_path.split('merged')[1].split('.csv')[0])
+            #     # print("please assert:", self.partial, '>=', merged_path.split('merged')[1].split('.csv')[0])
+            #
+            # elif td_flag:
+            #     user_ep_id = self.num_asd_user_levls + np.random.randint(self.data_len - self.num_asd_user_levls)
+            #     merged_path = self.ind_to_path_merged[user_ep_id]
+            #     # print(merged_path.split('merged')[1].split('.csv')[0])
+            #     while (('merged' in merged_path) and (int(merged_path.split('merged')[1].split('.csv')[0]) > self.partial)):
+            #         user_ep_id = self.num_asd_user_levls + np.random.randint(self.data_len - self.num_asd_user_levls)
+            #         merged_path = self.ind_to_path_merged[user_ep_id]
+            #         # print(merged_path.split('merged')[1].split('.csv')[0])
+            #
+            # else:
+            #     return None, None, None
             # print("please assert:", self.partial, '>=', merged_path.split('merged')[1].split('.csv')[0])
 
+        if self.task_counter % 2 == 0:
+            user_ep_id = np.random.randint(self.num_asd_user_levls)
+        else:
+            user_ep_id = self.num_asd_user_levls + np.random.randint(self.data_len - self.num_asd_user_levls)
         # user_ep_id = np.random.randint(self.data_len)
         # print("self: ", self.data_len, self.num_asd_user_levls, user_ep_id, self.task_counter)
         if self.setname in ['test', 'val']:

@@ -76,7 +76,7 @@ def save_to_csv(args, all_dicts, partial, iter=0):
         writer_obj = csv.writer(f)
         writer_obj.writerow(values)
 
-
+adjust_std = args.std
 for partial in np.arange(12, 13):
     train_ds.get_partial(partial)
 
@@ -87,6 +87,8 @@ for partial in np.arange(12, 13):
         adjust_learning_rate(optimizer, epoch, args.lr, args.weight_decay)
         model.train()
         train_aloss, train_lloss, train_bloss, train_reward = 0, 0, 0, 0
+        if (epoch in [2000, 5000, 8000]):
+            adjust_std = adjust_std / 2
 
         for batch_idx, (touch_data, gaze_data, label) in enumerate(train_dl):
             if touch_data is None:
@@ -95,10 +97,10 @@ for partial in np.arange(12, 13):
             gaze_data = gaze_data.to(device).float()
             label = label.to(device).float()
             optimizer.zero_grad()
-            model.initialize(touch_data.size(0), device)
+            model.initialize(touch_data.size(0), device, adjust_std)
             loss_fn.initialize(touch_data.size(0))
             for t in range(args.T):
-                logpi, action = model(touch_data, gaze_data, epoch, t)
+                logpi, action = model(touch_data, gaze_data)
                 aloss, lloss, bloss, reward = loss_fn(action, label, logpi)  # loss_fn stores logpi during intermediate time-stamps and returns loss in the last time-stamp
             if args.model == "no_attention":
                 loss = aloss
@@ -141,7 +143,7 @@ for partial in np.arange(12, 13):
             touch_data = touch_data.to(device).float()
             gaze_data = gaze_data.to(device).float()
             label = label.to(device).float()
-            model.initialize(touch_data.size(0), device)
+            model.initialize(touch_data.size(0), device, adjust_std)
             loss_fn.initialize(touch_data.size(0))
             for t in range(args.T):
                 logpi, action = model(touch_data, gaze_data)
@@ -191,8 +193,8 @@ for partial in np.arange(12, 13):
 
         save_to_csv(args, all_dicts_list, partial, epoch)
 
-        if epoch % 2000 == 0:
-            torch.save(model.state_dict(), f'./results/checkpoint/RAM_{epoch//2000}_{args.identifier}_latent{args.latent}_{args.model}_{args.attention}_selen{args.selen}_msize{args.msize}_time_step{args.T}_sd{args.seed}.pth')
+        if (epoch+1) % 2000 == 0:
+            torch.save(model.state_dict(), f'./results/checkpoint/RAM_{(epoch+1)//2000}_{args.identifier}_latent{args.latent}_{args.model}_{args.attention}_selen{args.selen}_msize{args.msize}_time_step{args.T}_sd{args.seed}.pth')
             torch.save(loss_fn.state_dict(),
-                       f'./results/checkpoint/LOSS_{epoch//2000}_{args.identifier}_latent{args.latent}_{args.model}_{args.attention}_selen{args.selen}_msize{args.msize}_time_step{args.T}_sd{args.seed}.pth')
+                       f'./results/checkpoint/LOSS_{(epoch+1)//2000}_{args.identifier}_latent{args.latent}_{args.model}_{args.attention}_selen{args.selen}_msize{args.msize}_time_step{args.T}_sd{args.seed}.pth')
 

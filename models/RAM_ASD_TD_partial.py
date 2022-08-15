@@ -248,14 +248,12 @@ class MODEL(nn.Module):
         self.location = LOCATION(self.msize, self.hidden)
         self.action = ACTION(self.hidden)
 
-    def initialize(self, B, device):
+    def initialize(self, B, device, std):
         self.state = torch.zeros(B, self.hidden).to(device)    # initialize states of the core network
         self.l = torch.rand((B, self.msize)).to(device)   # start with a glimpse at random location
-
-    def forward(self, touch_data, gaze_data, epoch=0, t=0):
+        self.std = std
+    def forward(self, touch_data, gaze_data):
         # g = self.glimps(x,self.l) # glimpse encoding
-        if (epoch in [2000, 5000, 8000]) and t==0:
-            self.std = self.std / 2
         g = self.glimps(touch_data, gaze_data, self.l)
         self.state = self.core(self.state, g)         # update state of a core network based on new glimpse
         logpi, self.l = self.location(self.state, self.std)     # predict location of next glimpse
