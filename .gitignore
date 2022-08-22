@@ -1,9 +1,5 @@
 */__pycache__
 */*/*.pyc
-*/__pycache__*
 .idea
-data/dataset*
-data/Fine_grain*
-data/Final_Ds*
 results/plots
 results/checkpoint
