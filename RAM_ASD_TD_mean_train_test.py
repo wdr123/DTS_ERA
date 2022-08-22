@@ -74,105 +74,106 @@ def save_to_csv(args, all_dicts, iter=0):
 
 
 
-for epoch in range(1000):
-    '''
-    Training
-    '''
-    # adjust_learning_rate(optimizer, epoch, lr, decay)
-    model.train()
-    train_aloss, train_lloss, train_bloss, train_reward = 0, 0, 0, 0
-
-    for batch_idx, (touch_data, gaze_data, label) in enumerate(train_dl):
-        touch_data = touch_data.to(device).float()
-        gaze_data = gaze_data.to(device).float()
-        label = label.to(device).float()
-        optimizer.zero_grad()
-        model.initialize(touch_data.size(0), device)
-        loss_fn.initialize(touch_data.size(0))
-        for _ in range(T):
-            logpi, action = model(touch_data, gaze_data)
-            aloss, lloss, bloss, reward = loss_fn(action, label, logpi)  # loss_fn stores logpi during intermediate time-stamps and returns loss in the last time-stamp
-        loss = aloss+lloss+bloss  
-        loss.backward()
-        optimizer.step()
-        train_aloss += aloss.item()
-        train_lloss += lloss.item()
-        train_bloss += bloss.item()
-        train_reward += reward.item()
+    for epoch in range(1000):
+        '''
+        Training
+        '''
+        # adjust_learning_rate(optimizer, epoch, lr, decay)
+        model.train()
+        train_aloss, train_lloss, train_bloss, train_reward = 0, 0, 0, 0
 
 
-    print('====> Epoch: {} Average loss: a {:.4f} l {:.4f} b {:.4f} Reward: {:.1f}'.format(
-          epoch, train_aloss / len(train_dl.dataset),
-          train_lloss / len(train_dl.dataset), 
-          train_bloss / len(train_dl.dataset),
-          train_reward *100/ len(train_dl.dataset)))
-
-    train_dict = {
-        'Epoch' : epoch,
-        'Train acc': train_reward *100 / len(train_dl.dataset),
-        'Train Action Loss': train_aloss / len(train_dl.dataset),
-        'Train Location Loss': train_lloss / len(train_dl.dataset),
-        'Train Baseline Loss': train_bloss / len(train_dl.dataset),
-    }
-
-    # save_to_csv("train", train_dict, epoch)
-    # uncomment below line to save the model
-    # torch.save([model.state_dict(), loss_fn.state_dict(), optimizer.state_dict()],'results/final'+str(epoch)+'.pth')
-
-    '''
-    Evaluation
-    '''
-    model.eval()
-    test_aloss, test_lloss, test_bloss, test_reward = 0, 0, 0, 0
-    count, count_asd, count_td, num_correct, num_correct_asd, num_correct_td = 0, 0, 0, 0, 0, 0
-    for batch_idx, (touch_data, gaze_data, label) in enumerate(test_dl):
-        touch_data = touch_data.to(device).float()
-        gaze_data = gaze_data.to(device).float()
-        label = label.to(device).float()
-        model.initialize(touch_data.size(0), device)
-        loss_fn.initialize(touch_data.size(0))
-        for _ in range(T):
-            logpi, action = model(touch_data, gaze_data)
-            aloss, lloss, bloss, reward = loss_fn(action, label, logpi)
-        loss = aloss+lloss+bloss
-        test_aloss += aloss.item()
-        test_lloss += lloss.item()
-        test_bloss += bloss.item()
-        test_reward += reward.item()
-
-        pred = 1 * (torch.sigmoid(action.detach()) > 0.5)
-        # print("pred: ", pred)
-        # print("label: ", label)
-        count += 1
-        num_correct += (1.0 * (label.squeeze() == pred.squeeze())).item()
-
-        num_correct_asd += (1.0 * (label.squeeze() == 1.0) * (pred.squeeze() == 1.0)).item()
-        num_correct_td += (1.0 * (label.squeeze() == 0.0) * (pred.squeeze() == 0.0)).item()
-        count_asd += (1.0 * (label.squeeze() == 1.0)).item()
-        count_td += (1.0 * (label.squeeze() == 0.0)).item()
+        for batch_idx, (touch_data, gaze_data, label) in enumerate(train_dl):
+            touch_data = touch_data.to(device).float()
+            gaze_data = gaze_data.to(device).float()
+            label = label.to(device).float()
+            optimizer.zero_grad()
+            model.initialize(touch_data.size(0), device)
+            loss_fn.initialize(touch_data.size(0))
+            for _ in range(T):
+                logpi, action = model(touch_data, gaze_data)
+                aloss, lloss, bloss, reward = loss_fn(action, label, logpi)  # loss_fn stores logpi during intermediate time-stamps and returns loss in the last time-stamp
+            loss = aloss+lloss+bloss
+            loss.backward()
+            optimizer.step()
+            train_aloss += aloss.item()
+            train_lloss += lloss.item()
+            train_bloss += bloss.item()
+            train_reward += reward.item()
 
 
-    print('====> Epoch: {} Average loss: a {:.4f} l {:.4f} b {:.4f} Reward: {:.1f}'.format(
-          epoch, test_aloss / len(test_dl.dataset),
-          test_lloss / len(test_dl.dataset), 
-          test_bloss / len(test_dl.dataset),
-          test_reward *100/ len(test_dl.dataset)))
+        print('====> Epoch: {} Average loss: a {:.4f} l {:.4f} b {:.4f} Reward: {:.1f}'.format(
+              epoch, train_aloss / len(train_dl.dataset),
+              train_lloss / len(train_dl.dataset),
+              train_bloss / len(train_dl.dataset),
+              train_reward *100/ len(train_dl.dataset)))
+
+        train_dict = {
+            'Epoch' : epoch,
+            'Train acc': train_reward *100 / len(train_dl.dataset),
+            'Train Action Loss': train_aloss / len(train_dl.dataset),
+            'Train Location Loss': train_lloss / len(train_dl.dataset),
+            'Train Baseline Loss': train_bloss / len(train_dl.dataset),
+        }
+
+        # save_to_csv("train", train_dict, epoch)
+        # uncomment below line to save the model
+        # torch.save([model.state_dict(), loss_fn.state_dict(), optimizer.state_dict()],'results/final'+str(epoch)+'.pth')
+
+        '''
+        Evaluation
+        '''
+        model.eval()
+        test_aloss, test_lloss, test_bloss, test_reward = 0, 0, 0, 0
+        count, count_asd, count_td, num_correct, num_correct_asd, num_correct_td = 0, 0, 0, 0, 0, 0
+        for batch_idx, (touch_data, gaze_data, label) in enumerate(test_dl):
+            touch_data = touch_data.to(device).float()
+            gaze_data = gaze_data.to(device).float()
+            label = label.to(device).float()
+            model.initialize(touch_data.size(0), device)
+            loss_fn.initialize(touch_data.size(0))
+            for _ in range(T):
+                logpi, action = model(touch_data, gaze_data)
+                aloss, lloss, bloss, reward = loss_fn(action, label, logpi)
+            loss = aloss+lloss+bloss
+            test_aloss += aloss.item()
+            test_lloss += lloss.item()
+            test_bloss += bloss.item()
+            test_reward += reward.item()
+
+            pred = 1 * (torch.sigmoid(action.detach()) > 0.5)
+            # print("pred: ", pred)
+            # print("label: ", label)
+            count += 1
+            num_correct += (1.0 * (label.squeeze() == pred.squeeze())).item()
+
+            num_correct_asd += (1.0 * (label.squeeze() == 1.0) * (pred.squeeze() == 1.0)).item()
+            num_correct_td += (1.0 * (label.squeeze() == 0.0) * (pred.squeeze() == 0.0)).item()
+            count_asd += (1.0 * (label.squeeze() == 1.0)).item()
+            count_td += (1.0 * (label.squeeze() == 0.0)).item()
 
 
-    test_dict = {
-        'Epoch': epoch,
-        'Test Accuracy (%)': test_reward * 100 / len(test_dl.dataset),
-        'Test Action Loss': test_aloss / len(test_dl.dataset),
-        'Test Location Loss': test_lloss / len(test_dl.dataset),
-        'Test Baseline Loss': test_bloss / len(test_dl.dataset),
-        'Test Accuracy': num_correct / count,
-        'Test ASD Accuracy': num_correct_asd / count_asd,
-        'Test TD Accuracy': num_correct_td / count_td,
-    }
+        print('====> Epoch: {} Average loss: a {:.4f} l {:.4f} b {:.4f} Reward: {:.1f}'.format(
+              epoch, test_aloss / len(test_dl.dataset),
+              test_lloss / len(test_dl.dataset),
+              test_bloss / len(test_dl.dataset),
+              test_reward *100/ len(test_dl.dataset)))
 
 
-    all_dicts_list = [train_dict, test_dict]
+        test_dict = {
+            'Epoch': epoch,
+            'Test Accuracy (%)': test_reward * 100 / len(test_dl.dataset),
+            'Test Action Loss': test_aloss / len(test_dl.dataset),
+            'Test Location Loss': test_lloss / len(test_dl.dataset),
+            'Test Baseline Loss': test_bloss / len(test_dl.dataset),
+            'Test Accuracy': num_correct / count,
+            'Test ASD Accuracy': num_correct_asd / count_asd,
+            'Test TD Accuracy': num_correct_td / count_td,
+        }
 
-    save_to_csv(args, all_dicts_list, epoch)
+
+        all_dicts_list = [train_dict, test_dict]
+
+        save_to_csv(args, all_dicts_list, epoch)
 
 

@@ -134,9 +134,9 @@ class ASDTDTaskGenerator(object):
             touch_data = merged_data[:,-3:]
         else:
             # touch_data = torch.cat((merged_data[:,:1],merged_data[:,-3:]),1)
-            touch_data = merged_data[:, -3:]
+            touch_data = merged_data[:,-3:]
         # gaze_data = merged_data[:,1:-3]
-        gaze_data = merged_data[:,gaze_start:-5] #Don't use pd
+        gaze_data = merged_data[:,gaze_start:-5]  #Don't use pd
         # gaze_data = merged_data[:,gaze_start:-7] #-5
         # gaze_data = torch.cat((merged_data[:,:1],merged_data[:,-7:-5]),1) #-5
         # gaze_data = merged_data[:,-7:-5]

@@ -1,5 +1,5 @@
-*/__pychache__
-.idea
+*/__pycache__
 */*/*.pyc
+.idea
 results/plots
 results/checkpoint
