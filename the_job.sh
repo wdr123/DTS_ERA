@@ -3,10 +3,10 @@
 
 #SBATCH --mail-user=986739772@qq.com
 #SBATCH --mail-type=ALL
-#SBATCH -A vision -p tier3 -n 1
+#SBATCH -A vision -p tier3 -n 2
 #SBATCH -c 1
 #SBATCH --mem=2g
-#SBATCH --gres=gpu:p4:1
+#SBATCH --gres=gpu:a100:1
 
 conda activate ADS
 if [[ $first = "no_attention" ]]; then

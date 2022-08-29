@@ -19,7 +19,7 @@ def get_args():
     parser.add_argument('--selen', type=int, default=10, help="sequential length")
     parser.add_argument('--msize', type=int, default=2, help="multiple size")
     parser.add_argument('--model', choices=['combine', 'no_attention', 'attention_only'], default='combine', help="model structure")
-    parser.add_argument('--latent', type=int, default=512, help='latent dimension')
+    parser.add_argument('--latent', type=int, default=128, help='latent dimension')
     args = parser.parse_args()
     # args.is_touch = args.is_touch.lower() == "true"
     # args.is_gaze = args.is_gaze.lower() == "true"

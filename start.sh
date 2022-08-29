@@ -5,7 +5,7 @@ script="$0"
 first="$1"
 second="$2"
 
-for i in {30,40,50,60,70}
+for i in {2..10..2}
 do
 #  if [ $1 == "mean" ]
 #  then
@@ -45,11 +45,15 @@ do
   elif [[ $second = "multiple" ]]; then
       python RAM_ASD_TD_partial_train_test.py --gpu 2 --latent $d --model combine --attention multiple --seed $i
   elif [[ $second = "combine" ]]; then
-      python RAM_ASD_TD_partial_train_test.py --gpu 3 --latent $d --model combine --attention combine --lsub $i
-  elif [[ $second = "sequential10" ]]; then
-      python RAM_ASD_TD_partial_train_test.py --gpu 4 --latent $d --model combine --attention sequential --seed $i
-  elif [[ $second = "sequential20" ]]; then
-      python RAM_ASD_TD_partial_train_test.py --gpu 5 --latent $d --model combine --attention sequential --selen 20 --seed $i
+      python RAM_ASD_TD_partial_train_test.py --gpu 3 --T 5 --latent $d --model combine --attention combine --seed $i
+  elif [[ $second = "t3" ]]; then
+      python RAM_ASD_TD_partial_train_test.py --gpu 4 --T 3 --latent $d --model combine --attention combine --seed $i
+  elif [[ $second = "t4" ]]; then
+      python RAM_ASD_TD_partial_train_test.py --gpu 5 --T 4 --latent $d --model combine --attention combine --seed $i
+  elif [[ $second = "t6" ]]; then
+      python RAM_ASD_TD_partial_train_test.py --gpu 0 --T 6 --latent $d --model combine --attention combine --seed $i
+  elif [[ $second = "t7" ]]; then
+      python RAM_ASD_TD_partial_train_test.py --gpu 1 --T 7 --latent $d --model combine --attention combine --seed $i
   fi
 
 done

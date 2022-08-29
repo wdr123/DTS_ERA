@@ -62,10 +62,10 @@ def save_to_csv(args, all_dicts, partial, iter=0):
             header.append(k)
             values.append(v)
 
-    if not os.path.exists(f'./results/partial/{partial}'):
-        os.makedirs(f'./results/partial/{partial}')
+    if not os.path.exists(f'./results/all/ablation'):
+        os.makedirs(f'./results/all/ablation')
     save_model_name = f"Save_{args.identifier}_latent{args.latent}_{args.model}_{args.attention}_selen{args.selen}_msize{args.msize}_time_step{args.T}_sd{args.seed}.csv"
-    save_model_path = os.path.join(f'./results/partial/{partial}', save_model_name)
+    save_model_path = os.path.join(f'./results/all/ablation', save_model_name)
 
     # save_model_name = "Debug.csv"
     if iter == 0:
@@ -87,7 +87,7 @@ for partial in np.arange(12, 13):
         adjust_learning_rate(optimizer, epoch, args.lr, args.weight_decay)
         model.train()
         train_aloss, train_lloss, train_bloss, train_reward = 0, 0, 0, 0
-        if (epoch in [2000, 5000, 8000]):
+        if (epoch in [1500,3000,4500]):
             adjust_std = adjust_std / 2
 
         for batch_idx, (touch_data, gaze_data, label) in enumerate(train_dl):
@@ -193,7 +193,7 @@ for partial in np.arange(12, 13):
 
         save_to_csv(args, all_dicts_list, partial, epoch)
 
-        if (epoch+1) % 2000 == 0:
+        if (epoch+1) % 1500 == 0:
             torch.save(model.state_dict(), f'./results/checkpoint/RAM_{(epoch+1)//2000}_{args.identifier}_latent{args.latent}_{args.model}_{args.attention}_selen{args.selen}_msize{args.msize}_time_step{args.T}_sd{args.seed}.pth')
             torch.save(loss_fn.state_dict(),
                        f'./results/checkpoint/LOSS_{(epoch+1)//2000}_{args.identifier}_latent{args.latent}_{args.model}_{args.attention}_selen{args.selen}_msize{args.msize}_time_step{args.T}_sd{args.seed}.pth')
