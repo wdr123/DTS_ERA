@@ -34,7 +34,7 @@ kwargs = {'num_workers': 1, 'pin_memory': True} if device.type=='cuda' else {}
 
 from models.RAM_ASD_TD_partial import MODEL, LOSS, adjust_learning_rate
 
-#Data Loaders
+# Data Loaders
 bs = 16
 train_ds = ASDTDTaskGenerator("train", data_path="Fine_grain", args = args)
 train_dl = DataLoader(train_ds,batch_size=bs,shuffle=True, **kwargs)
@@ -118,7 +118,7 @@ for partial in np.arange(12, 13):
               epoch, train_aloss / len(train_dl.dataset),
               train_lloss / len(train_dl.dataset),
               train_bloss / len(train_dl.dataset),
-              train_reward *100/ len(train_dl.dataset)))
+              train_reward * 100/ len(train_dl.dataset)))
 
         train_dict = {
             'Partial': partial,
