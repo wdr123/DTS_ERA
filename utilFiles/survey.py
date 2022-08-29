@@ -2,7 +2,7 @@ import os
 import numpy as np
 import pandas as pd
 
-dir = './data/dataset0'
+dir = '../data/Fine_grain18'
 
 
 def get_length_from_path(a):
@@ -17,16 +17,16 @@ for split in os.listdir(dir):
     split_path = os.path.join(dir, split)
     for user in os.listdir(split_path):
         user_path = os.path.join(split_path, user)
-        avg = 0
+        # avg = 0
         for merged in os.listdir(user_path):
             fnl_path = os.path.join(user_path, merged)
             length = get_length_from_path(fnl_path)
-            avg += length[1]
+            avg = length[1]
             print('{}:{}:'.format(user, merged), length[1])
-        if avg < avg_min:
-            avg_min = avg
-        if avg >= avg_max:
-            avg_max = avg
+            if avg < avg_min:
+                avg_min = avg
+            if avg >= avg_max:
+                avg_max = avg
 
         print('{}_length:'.format(user), avg)
 

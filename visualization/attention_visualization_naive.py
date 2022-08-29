@@ -2,9 +2,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 from data.merged_instance_generator_visualization import ASDTDTaskGenerator
 from torch.utils.data import DataLoader
-from utilFiles.the_args import get_seed
+from utilFiles.the_args import get_args
 
-args, _ = get_seed()
+args, _ = get_args()
 T = 5
 test_dl = DataLoader(ASDTDTaskGenerator("test", data_path="dataset", args = args),batch_size=1,shuffle=True)
 x = []

@@ -2,6 +2,7 @@ import os
 import pandas as pd
 import numpy as np
 import torch
+from utilFiles.set_deterministic import make_deterministic
 np.set_printoptions(suppress=True)
 
 class ASDTDTaskGenerator(object):
@@ -9,6 +10,8 @@ class ASDTDTaskGenerator(object):
         if not args:
             print('Pass args')
             raise NotImplementedError
+
+        make_deterministic(seed=0)
 
         self.task_counter = 0
         seed = args.seed
@@ -69,15 +72,13 @@ class ASDTDTaskGenerator(object):
         # self.episode_len = []
         # for k,v in self.path_merged_length_both.items():
         #     self.episode_len.append(v[1])
-        self.num_window = 60
-
+        self.num_window = 100
+        if self.setname == 'train':
+            self.already_visit_user = []
 
         # SAVE DICT TEST INDEX TO FILE
         save_df = pd.DataFrame.from_dict(self.ind_to_path_merged, orient="index")
         save_df.to_csv(f"{setname}_ind_to_path_merged.csv")
-
-
-
 
         # print(os.listdir(path))
 
@@ -95,34 +96,41 @@ class ASDTDTaskGenerator(object):
     def __len__(self):
         if self.setname in [ 'test', 'val']:
             return self.data_len
-        return 1000#self.data_len
+        return 150 #self.data_len
 
     def __getitem__(self, idx):
         #Randomly select a player and then the corresponding episode
-        if self.task_counter % 2 == 0:
-            user_ep_id = np.random.randint(self.num_asd_user_levls)
-        else:
-            user_ep_id = self.num_asd_user_levls + np.random.randint(self.data_len - self.num_asd_user_levls)
+        while True:
+            if self.task_counter % 2 == 0:
+                user_ep_id = np.random.randint(self.num_asd_user_levls)
+            else:
+                user_ep_id = self.num_asd_user_levls + np.random.randint(self.data_len - self.num_asd_user_levls)
+            if user_ep_id not in self.already_visit_user:
+                break
         # user_ep_id = np.random.randint(self.data_len)
         # print("self: ", self.data_len, self.num_asd_user_levls, user_ep_id, self.task_counter)
+        self.already_visit_user.append(user_ep_id)
+
         if self.setname in ['test', 'val']:
             user_ep_id = self.task_counter % self.data_len
         self.task_counter += 1
 
-        #The path of the selected player-episode
+        # The path of the selected player-episode
         merged_path = self.ind_to_path_merged[user_ep_id]
         game_level = merged_path.split('merged')[1].split('.csv')[0]
+        user_id = (merged_path.split('\\')[-2])[-2:]
+        # print(user_id)
 
-        #Data to begin
+        # Data to begin
 
         ranges = self.path_merged_length_both[merged_path]
         pos_begin = np.random.randint(ranges[0], ranges[1]-self.num_window)
         pos_end = pos_begin + self.num_window
 
-        #Corresponding data
+        # Corresponding data
         merged_data = self.path_merged_data_merged[merged_path]
 
-        windowed_ = True
+        windowed_ = False
         if windowed_:
             merged_data = merged_data[pos_begin:pos_end]
 
@@ -133,11 +141,11 @@ class ASDTDTaskGenerator(object):
             merged_data = torch.tensor(self.path_merged_data_merged[merged_path])
 
 
-        class_level = torch.tensor([self.ind_to_class_level[user_ep_id]])
+        class_label = torch.tensor([self.ind_to_class_level[user_ep_id]])
 
         # gaze_start = 0
         # if self.args.is_lstm: #No time feature
-        gaze_start = 1
+        gaze_start = 0
         touch_data = merged_data[:,-3:]
         # else:
         #     touch_data = torch.cat((merged_data[:,:1],merged_data[:,-3:]),1)
@@ -149,4 +157,4 @@ class ASDTDTaskGenerator(object):
         # gaze_data = merged_data[:,-7:-5]
         # gaze_data = torch.cat((merged_data[:,-7:-6],merged_data[:,-8:-7]),1) #-5
 
-        return touch_gaze_data, class_level, game_level
+        return touch_gaze_data, class_label, game_level, user_id
