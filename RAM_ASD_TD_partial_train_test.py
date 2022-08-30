@@ -194,7 +194,7 @@ for partial in np.arange(12, 13):
         save_to_csv(args, all_dicts_list, partial, epoch)
 
         if (epoch+1) % 1500 == 0:
-            torch.save(model.state_dict(), f'./results/checkpoint/RAM_{(epoch+1)//2000}_{args.identifier}_latent{args.latent}_{args.model}_{args.attention}_selen{args.selen}_msize{args.msize}_time_step{args.T}_sd{args.seed}.pth')
+            torch.save(model.state_dict(), f'./results/checkpoint/RAM_{(epoch+1)//1500}_{args.identifier}_latent{args.latent}_{args.model}_{args.attention}_selen{args.selen}_msize{args.msize}_time_step{args.T}_sd{args.seed}.pth')
             torch.save(loss_fn.state_dict(),
-                       f'./results/checkpoint/LOSS_{(epoch+1)//2000}_{args.identifier}_latent{args.latent}_{args.model}_{args.attention}_selen{args.selen}_msize{args.msize}_time_step{args.T}_sd{args.seed}.pth')
+                       f'./results/checkpoint/LOSS_{(epoch+1)//1500}_{args.identifier}_latent{args.latent}_{args.model}_{args.attention}_selen{args.selen}_msize{args.msize}_time_step{args.T}_sd{args.seed}.pth')
 

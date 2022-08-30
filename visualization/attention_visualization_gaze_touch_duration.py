@@ -20,23 +20,6 @@ make_deterministic(seed=0)
 
 
 for batch_idx, (touch_gaze_data, label, level, user_id) in enumerate(train_dl):
-    whole_left_gaze_x_list_ASD = []
-    whole_left_gaze_y_list_ASD = []
-    whole_right_gaze_x_list_ASD = []
-    whole_right_gaze_y_list_ASD = []
-    whole_touch_x_list_ASD = []
-    whole_touch_y_list_ASD = []
-    whole_touch_hard_list_ASD = []
-    whole_duration_ASD = []
-
-    whole_left_gaze_x_list_TD = []
-    whole_left_gaze_y_list_TD = []
-    whole_right_gaze_x_list_TD = []
-    whole_right_gaze_y_list_TD = []
-    whole_touch_x_list_TD = []
-    whole_touch_y_list_TD = []
-    whole_touch_hard_list_TD = []
-    whole_duration_TD = []
 
     label = label[0]
     level = level[0]
@@ -81,6 +64,14 @@ for batch_idx, (touch_gaze_data, label, level, user_id) in enumerate(train_dl):
                 os.mkdir(f'results/visualization/TD{user_id}_gamelevel_{level}_attn')
             df_TD.to_csv(f'results/visualization/TD{user_id}_gamelevel_{level}_attn/attention_{idx}.csv', index=None,
                          header=None)
+
+        whole_table_TD = np.array(
+            [whole_left_gaze_x_list_TD, whole_left_gaze_y_list_TD, whole_right_gaze_x_list_TD,
+             whole_right_gaze_y_list_TD, whole_touch_x_list_TD,
+             whole_touch_y_list_TD, whole_touch_hard_list_TD, whole_duration_TD])
+        whole_df_TD = pd.DataFrame(whole_table_TD)
+        whole_df_TD.to_csv(f'results/visualization/origin/TD{user_id}_gamelevel_{level}_origin.csv', index=None,
+                           header=None)
 
     else:
         whole_left_gaze_x_list_ASD=touch_gaze_data[:, 0]
@@ -135,10 +126,6 @@ for batch_idx, (touch_gaze_data, label, level, user_id) in enumerate(train_dl):
                       header=None)
 
 
-        whole_table_TD = np.array(
-            [whole_left_gaze_x_list_TD, whole_left_gaze_y_list_TD, whole_right_gaze_x_list_TD, whole_right_gaze_y_list_TD, whole_touch_x_list_TD,
-             whole_touch_y_list_TD, whole_touch_hard_list_TD, whole_duration_TD])
-        whole_df_TD = pd.DataFrame(whole_table_TD)
-        whole_df_TD.to_csv(f'results/visualization/origin/TD{user_id}_gamelevel_{level}_origin.csv', index=None, header=None)
+
 
 
