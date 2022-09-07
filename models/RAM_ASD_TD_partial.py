@@ -155,7 +155,7 @@ class GLIMPSE(nn.Module):
                         gaze_d.append(gaze_emb[batch, interval[0]:interval[1], :].unsqueeze(0)) # 1*selen*gaze_emb_dim
                         # print(touch_emb[batch, interval[0]:interval[1], :].unsqueeze(0).shape)
                     touch_data.append(torch.cat(touch_d, dim=1)) # 1,selen*msize,touch_emb_dim
-                    gaze_data.append(torch.cat(gaze_d, dim=1))  # 1,selen*msize,touch_emb_dim
+                    gaze_data.append(torch.cat(gaze_d, dim=1))  # 1,selen*msize,gaze_emb_dim
                     touch_d = []
                     gaze_d = []
                 touch_emb_attn = torch.mean(torch.cat(touch_data, dim=0), dim=1)  # bs,selen*msize,touch_emb_dim --> bs,touch_emb_dim
