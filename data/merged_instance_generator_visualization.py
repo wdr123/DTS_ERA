@@ -46,7 +46,7 @@ class ASDTDTaskGenerator(object):
         #Player id
         count = 0
         players_list = sorted(os.listdir(path)) #In train or test the users [p01, p02,...]
-        print(players_list)
+        # print(players_list)
         self.num_asd_user_levls = 0
         for index, player_name in enumerate(players_list): #[P01, P02,...]
             player_path = os.path.join(path, player_name)
@@ -123,16 +123,16 @@ class ASDTDTaskGenerator(object):
 
         # Data to begin
 
-        ranges = self.path_merged_length_both[merged_path]
-        pos_begin = np.random.randint(ranges[0], ranges[1]-self.num_window)
-        pos_end = pos_begin + self.num_window
+        # ranges = self.path_merged_length_both[merged_path]
+        # pos_begin = np.random.randint(ranges[0], ranges[1]-self.num_window)
+        # pos_end = pos_begin + self.num_window
 
         # Corresponding data
         merged_data = self.path_merged_data_merged[merged_path]
 
-        windowed_ = False
-        if windowed_:
-            merged_data = merged_data[pos_begin:pos_end]
+        # windowed_ = False
+        # if windowed_:
+        #     merged_data = merged_data[pos_begin:pos_end]
 
 
         merged_data = torch.tensor(merged_data)

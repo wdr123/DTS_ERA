@@ -252,6 +252,10 @@ class MODEL(nn.Module):
         self.state = torch.zeros(B, self.hidden).to(device)    # initialize states of the core network
         self.l = torch.rand((B, self.msize)).to(device)   # start with a glimpse at random location
         self.std = std
+
+    def show_loc(self,):
+        return self.l
+
     def forward(self, touch_data, gaze_data):
         # g = self.glimps(x,self.l) # glimpse encoding
         g = self.glimps(touch_data, gaze_data, self.l)

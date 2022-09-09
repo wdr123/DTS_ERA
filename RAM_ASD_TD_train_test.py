@@ -32,7 +32,7 @@ kwargs = {'num_workers': 1, 'pin_memory': True} if device.type=='cuda' else {}
 #                                            batch_size=batch_size, shuffle=True, **kwargs)
 
 
-from models.RAM_ASD_TD_partial import MODEL, LOSS, adjust_learning_rate
+from models.RAM_ASD_TD import MODEL, LOSS, adjust_learning_rate
 
 #Data Loaders
 bs = 16
@@ -52,7 +52,7 @@ model = MODEL(args).to(device)
 loss_fn = LOSS(T=args.T, gamma=args.gamma, device=device).to(device)
 # optimizer = optim.Adam(list(model.parameters())+list(loss_fn.parameters()), lr=lr)
 optimizer = optim.Adam(list(model.parameters())+list(loss_fn.parameters()), lr=args.lr, weight_decay=1e-5)
-print(model)
+# print(model)
 
 import csv
 def save_to_csv(args, all_dicts, partial, iter=0):
