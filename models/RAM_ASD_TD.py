@@ -242,6 +242,7 @@ class MODEL(nn.Module):
             self.msize = args.msize
         # self.glimps = GLIMPSE(im_sz, channel, glimps_width, scale)
         self.std = args.std
+        self.g = 0
 
         self.glimps = GLIMPSE(args)
         self.core   = CORE(self.hidden)
@@ -256,10 +257,13 @@ class MODEL(nn.Module):
     def show_loc(self,):
         return self.l
 
+    def show_deep_set(self,):
+        return self.g
+
     def forward(self, touch_data, gaze_data):
         # g = self.glimps(x,self.l) # glimpse encoding
-        g = self.glimps(touch_data, gaze_data, self.l)
-        self.state = self.core(self.state, g)         # update state of a core network based on new glimpse
+        self.g = self.glimps(touch_data, gaze_data, self.l)
+        self.state = self.core(self.state, self.g)         # update state of a core network based on new glimpse
         logpi, self.l = self.location(self.state, self.std)     # predict location of next glimpse
         a = self.action(self.state)                   # predict task specific actions
         return logpi, a

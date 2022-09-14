@@ -43,7 +43,7 @@ for asd_attn_pca_file, td_attn_pca_file in zip(os.listdir(asd_dir_attn),os.listd
     X_ASD_attn = np.genfromtxt(asd_attn_path, delimiter=',')
     X_TD_attn = np.genfromtxt(td_attn_path, delimiter=',')
 
-    num_cluster = 8
+    num_cluster = 2
 
     X_attn = np.concatenate([X_ASD_attn,X_TD_attn], axis=0)
 

@@ -17,6 +17,7 @@ assert torch.cuda.is_available()
 args, _ = get_args()
 args.seed = 0
 args.std = 0.1
+args.model = "attention_only"
 attn = True
 T = 5
 obs_window = 10
@@ -38,8 +39,8 @@ model = MODEL(args).to(device)
 loss_fn = LOSS(T=args.T, gamma=args.gamma, device=device).to(device)
 
 
-model.load_state_dict(torch.load(f'results/checkpoint/RAM_2_partial_latent256_combine_combine_selen10_msize2_time_step5_sd0.pth'))
-loss_fn.load_state_dict(torch.load(f'results/checkpoint/LOSS_2_partial_latent256_combine_combine_selen10_msize2_time_step5_sd0.pth'))
+model.load_state_dict(torch.load(f'results/checkpoint/RAM_3_train_test_latent256_attention_only_combine_selen10_msize2_time_step5_sd0.pth'))
+loss_fn.load_state_dict(torch.load(f'results/checkpoint/LOSS_3_train_test_latent256_attention_only_combine_selen10_msize2_time_step5_sd0.pth'))
 
 import csv
 def save_to_csv(args, all_dicts, iter=0):
@@ -51,7 +52,7 @@ def save_to_csv(args, all_dicts, iter=0):
 
     if not os.path.exists(f'./results/all/test'):
         os.makedirs(f'./results/all/test')
-    save_model_name = f"Save_test3000_latent256_combine_combine_selen10_msize2_time_step5_sd0.csv"
+    save_model_name = f"Save_test3000_latent256_attention_only_combine_selen10_msize2_time_step5_sd0.csv"
     save_model_path = os.path.join(f'./results/all/test', save_model_name)
 
     # save_model_name = "Debug.csv"
@@ -130,9 +131,9 @@ for batch_idx, (touch_gaze_data, label, level, user_id) in enumerate(train_dl):
                 [left_gaze_x_list_TD, left_gaze_y_list_TD, right_gaze_x_list_TD, right_gaze_y_list_TD, touch_x_list_TD,
                  touch_y_list_TD, touch_hard_list_TD, duration_TD])
             df_TD = pd.DataFrame(table_TD)
-            if not os.path.exists(f'results/visualization/result_attention_data/TD{user_id}_gamelevel_{level}_attn'):
-                os.mkdir(f'results/visualization/result_attention_data/TD{user_id}_gamelevel_{level}_attn')
-            df_TD.to_csv(f'results/visualization/result_attention_data/TD{user_id}_gamelevel_{level}_attn/attention_{idx}.csv', index=None,
+            if not os.path.exists(f'results/visualization/only_attention_data/TD{user_id}_gamelevel_{level}_attn'):
+                os.mkdir(f'results/visualization/only_attention_data/TD{user_id}_gamelevel_{level}_attn')
+            df_TD.to_csv(f'results/visualization/only_attention_data/TD{user_id}_gamelevel_{level}_attn/attention_{idx}.csv', index=None,
                          header=None)
 
         whole_table_TD = np.array(
@@ -140,7 +141,7 @@ for batch_idx, (touch_gaze_data, label, level, user_id) in enumerate(train_dl):
              whole_right_gaze_y_list_TD, whole_touch_x_list_TD,
              whole_touch_y_list_TD, whole_touch_hard_list_TD, whole_duration_TD])
         whole_df_TD = pd.DataFrame(whole_table_TD)
-        whole_df_TD.to_csv(f'results/visualization/result_attention_data/origin/TD{user_id}_gamelevel_{level}_origin.csv', index=None,
+        whole_df_TD.to_csv(f'results/visualization/only_attention_data/origin/TD{user_id}_gamelevel_{level}_origin.csv', index=None,
                            header=None)
 
     else:
@@ -170,16 +171,16 @@ for batch_idx, (touch_gaze_data, label, level, user_id) in enumerate(train_dl):
                  touch_y_list_ASD, touch_hard_list_ASD, duration_ASD])
             df_ASD = pd.DataFrame(table_ASD)
 
-            if not os.path.exists(f'results/visualization/result_attention_data/ASD{user_id}_gamelevel_{level}_attn'):
-                os.mkdir(f'results/visualization/result_attention_data/ASD{user_id}_gamelevel_{level}_attn')
-            df_ASD.to_csv(f'results/visualization/result_attention_data/ASD{user_id}_gamelevel_{level}_attn/attention_{idx}.csv', index=None,
+            if not os.path.exists(f'results/visualization/only_attention_data/ASD{user_id}_gamelevel_{level}_attn'):
+                os.mkdir(f'results/visualization/only_attention_data/ASD{user_id}_gamelevel_{level}_attn')
+            df_ASD.to_csv(f'results/visualization/only_attention_data/ASD{user_id}_gamelevel_{level}_attn/attention_{idx}.csv', index=None,
                          header=None)
 
         whole_table_ASD = np.array(
             [whole_left_gaze_x_list_ASD, whole_left_gaze_y_list_ASD, whole_right_gaze_x_list_ASD, whole_right_gaze_y_list_ASD, whole_touch_x_list_ASD,
              whole_touch_y_list_ASD, whole_touch_hard_list_ASD, whole_duration_ASD])
         whole_df_ASD = pd.DataFrame(whole_table_ASD)
-        if not os.path.exists(f'results/visualization/result_attention_data/origin'):
-            os.mkdir(f'results/visualization/result_attention_data/origin')
-        whole_df_ASD.to_csv(f'results/visualization/result_attention_data/origin/ASD{user_id}_gamelevel_{level}_origin.csv', index=None,
+        if not os.path.exists(f'results/visualization/only_attention_data/origin'):
+            os.mkdir(f'results/visualization/only_attention_data/origin')
+        whole_df_ASD.to_csv(f'results/visualization/only_attention_data/origin/ASD{user_id}_gamelevel_{level}_origin.csv', index=None,
                       header=None)

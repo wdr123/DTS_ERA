@@ -28,12 +28,21 @@ from matplotlib import pyplot as plt
 # np.savetxt(f'../results/visualization/tsne_cluster/attention_fig.csv', whole_attention_data, delimiter=',')
 
 
-attention_fig_path = '../results/visualization/tsne_cluster/attention_fig.csv'
-attention_label_path = '../results/visualization/tsne_cluster/attention_fig_label.csv'
-df_attn = pd.read_csv(attention_fig_path, header=None)
-X = df_attn
-y = pd.read_csv(attention_label_path,header=None)
-y = y.to_numpy().squeeze()
+deepset_asd = '../results/visualization/result_deepset/ASD.csv'
+deepset_td = '../results/visualization/result_deepset/TD.csv'
+df_asd = pd.read_csv(deepset_asd,header=None) # 75*1024
+df_td = pd.read_csv(deepset_td,header=None) # 75*1024
+df_asd.insert(0,'label',1)  # 75*1025
+df_td.insert(0,'label',0)   # 75*1025
+frames = [df_asd, df_td]
+result = pd.concat(frames)
+df_attn = result.sample(frac=1).reset_index(drop=True)
+
+# print(df_attn)
+X = df_attn.loc[:,0:]
+# y = pd.read_csv(attention_label_path, header=None)
+y = df_attn.loc[:,'label']
+# print(y)
 # print(np.sum(y))
 # print(X.shape,y.shape)
 
@@ -79,5 +88,5 @@ for svd1 in range(n_components):
         ax.set_title(f"svd of components {svd1} and {svd2}")
 
 # plt.show()
-plt.savefig(f'../results/visualization/svd_cluster/attention_fig_svd.png')
+plt.savefig(f'../results/visualization/svd_cluster/attention_deepset_svd.png')
 plt.close()

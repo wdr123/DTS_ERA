@@ -73,7 +73,7 @@ class ASDTDTaskGenerator(object):
         # for k,v in self.path_merged_length_both.items():
         #     self.episode_len.append(v[1])
         self.num_window = 100
-        if self.setname == 'train':
+        if self.setname == 'train' or 'test':
             self.already_visit_user = []
 
         # SAVE DICT TEST INDEX TO FILE
@@ -95,7 +95,7 @@ class ASDTDTaskGenerator(object):
 
     def __len__(self):
         if self.setname in [ 'test', 'val']:
-            return self.data_len
+            return 8
         return 150 #self.data_len
 
     def __getitem__(self, idx):
@@ -111,8 +111,8 @@ class ASDTDTaskGenerator(object):
         # print("self: ", self.data_len, self.num_asd_user_levls, user_ep_id, self.task_counter)
         self.already_visit_user.append(user_ep_id)
 
-        if self.setname in ['test', 'val']:
-            user_ep_id = self.task_counter % self.data_len
+        # if self.setname in ['test', 'val']:
+        #     user_ep_id = self.task_counter % self.data_len
         self.task_counter += 1
 
         # The path of the selected player-episode
