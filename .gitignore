@@ -4,4 +4,6 @@
 results/plot
 results/checkpoint
 results/visualization
+results/all
+results/partial
 data/cluster
