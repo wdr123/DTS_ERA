@@ -22,6 +22,7 @@ assert torch.cuda.is_available()
 args, _ = get_args()
 args.seed = 0
 args.std = 0.1
+args.model = "attention_only"
 device = torch.device(f"cuda:{args.gpu}" if torch.cuda.is_available() else "cpu")
 print(device)
 
@@ -38,8 +39,10 @@ model = MODEL(args).to(device)
 loss_fn = LOSS(T=args.T, gamma=args.gamma, device=device).to(device)
 
 
-model.load_state_dict(torch.load(f'results/checkpoint/RAM_2_partial_latent256_combine_combine_selen10_msize2_time_step5_sd0.pth'))
-loss_fn.load_state_dict(torch.load(f'results/checkpoint/LOSS_2_partial_latent256_combine_combine_selen10_msize2_time_step5_sd0.pth'))
+# model.load_state_dict(torch.load(f'results/checkpoint/RAM_2_partial_latent256_combine_combine_selen10_msize2_time_step5_sd0.pth'))
+# loss_fn.load_state_dict(torch.load(f'results/checkpoint/LOSS_2_partial_latent256_combine_combine_selen10_msize2_time_step5_sd0.pth'))
+model.load_state_dict(torch.load(f'results/checkpoint/RAM_3_train_test_latent256_attention_only_combine_selen10_msize2_time_step5_sd0.pth'))
+loss_fn.load_state_dict(torch.load(f'results/checkpoint/LOSS_3_train_test_latent256_attention_only_combine_selen10_msize2_time_step5_sd0.pth'))
 
 import csv
 def save_to_csv(args, all_dicts, iter=0):
@@ -51,7 +54,7 @@ def save_to_csv(args, all_dicts, iter=0):
 
     if not os.path.exists(f'./results/all/test'):
         os.makedirs(f'./results/all/test')
-    save_model_name = f"Save_test3000_latent256_combine_combine_selen10_msize2_time_step5_sd0.csv"
+    save_model_name = f"Save_test3000_latent256_only_attention_combine_selen10_msize2_time_step5_sd0.csv"
     save_model_path = os.path.join(f'./results/all/test', save_model_name)
 
     # save_model_name = "Debug.csv"

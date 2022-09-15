@@ -184,3 +184,5 @@ for batch_idx, (touch_gaze_data, label, level, user_id) in enumerate(train_dl):
             os.mkdir(f'results/visualization/only_attention_data/origin')
         whole_df_ASD.to_csv(f'results/visualization/only_attention_data/origin/ASD{user_id}_gamelevel_{level}_origin.csv', index=None,
                       header=None)
+
+
