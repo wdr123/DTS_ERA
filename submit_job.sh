@@ -1,13 +1,13 @@
 #!/bin/bash
-base_job_name="RAM_Aug04"
+base_job_name="RAM_Sep_9"
 job_file="the_job.sh"
-identifier_name="RAM_finetune"
+identifier_name="RAM_attention"
 dir="op"$identifier_name
 mkdir -p $dir
 
 
-for seed in {0..20}; do
-for latent in {128,256,512}; do
+for seed in {0,}; do
+for latent in {256,}; do
   export seed latent
   export first="$1" second="$2"
   job_name=$base_job_name-$((first))-$((second))-$((seed))

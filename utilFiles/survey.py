@@ -10,25 +10,52 @@ def get_length_from_path(a):
     l1_end = len(pd.read_csv(a).to_numpy())
     return [l1_start, l1_end]
 
-avg_min = 10000
-avg_max = -1
+test_min = 10000
+test_max = -1
+total_avg = 0
+total_count = 0
+avg_asd = 0
+count_asd = 0
+avg_td = 0
+count_td = 0
 
-for split in os.listdir(dir):
-    split_path = os.path.join(dir, split)
-    for user in os.listdir(split_path):
-        user_path = os.path.join(split_path, user)
-        # avg = 0
-        for merged in os.listdir(user_path):
-            fnl_path = os.path.join(user_path, merged)
-            length = get_length_from_path(fnl_path)
-            avg = length[1]
-            print('{}:{}:'.format(user, merged), length[1])
-            if avg < avg_min:
-                avg_min = avg
-            if avg >= avg_max:
-                avg_max = avg
+for train_test_split in os.listdir(dir):
+    train_test_split_path = os.path.join(dir, train_test_split)
+    for user_folder in os.listdir(train_test_split_path):
+        user_path = os.path.join(train_test_split_path, user_folder)
 
-        print('{}_length:'.format(user), avg)
+        if 'ASD' in user_folder:
+            for gl_file in os.listdir(user_path):
+                gl_path = os.path.join(user_path, gl_file)
+                length = get_length_from_path(gl_path)
+                count_asd += 1
+                total_count += 1
+                avg_asd += length[1]
+                total_avg += length[1]
+                test = length[1]
+                print('{}:{}:'.format(user_folder, gl_file), length[1])
+                if test < test_min:
+                    test_min = test
+                if test >= test_max:
+                    test_max = test
+        elif 'TD' in user_folder:
+            for gl_file in os.listdir(user_path):
+                gl_path = os.path.join(user_path, gl_file)
+                length = get_length_from_path(gl_path)
+                count_td += 1
+                total_count += 1
+                avg_td += length[1]
+                total_avg += length[1]
+                test = length[1]
+                print('{}:{}:'.format(user_folder, gl_file), length[1])
+                if test < test_min:
+                    test_min = test
+                if test >= test_max:
+                    test_max = test
 
-    print('avg_min', avg_min)
-    print('avg_max', avg_max)
+print('ASD_avg_length_{}:'.format(avg_asd/count_asd))
+print('TD_avg_length_{}:'.format(avg_td/count_td))
+
+print('total_acg', total_avg/total_count)
+print('avg_min', test_min)
+print('avg_max', test_max)

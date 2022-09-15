@@ -14,12 +14,12 @@ def get_args():
     parser.add_argument('--weight_decay', type=int, default=0.5, help="Learning rate weight decay")
     parser.add_argument('--gamma', type=int, default=1, help="Discount factor for RL")
     # parser.add_argument('--is_weighted', type=str, default="False", help="Use lstm in the encoder")
-    parser.add_argument('--identifier', type= str, default="partial", help="Identifier For Script")
+    parser.add_argument('--identifier', type= str, default="train_test", help="Identifier For Script")
     parser.add_argument('--attention', choices=['combine','sequential','multiple'], default='combine',  help="attention way")
     parser.add_argument('--selen', type=int, default=10, help="sequential length")
     parser.add_argument('--msize', type=int, default=2, help="multiple size")
     parser.add_argument('--model', choices=['combine', 'no_attention', 'attention_only'], default='combine', help="model structure")
-    parser.add_argument('--latent', type=int, default=512, help='latent dimension')
+    parser.add_argument('--latent', type=int, default=256, help='latent dimension')
     args = parser.parse_args()
     # args.is_touch = args.is_touch.lower() == "true"
     # args.is_gaze = args.is_gaze.lower() == "true"

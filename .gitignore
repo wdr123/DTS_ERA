@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 **/__pycache__
 **/*.pyc
 .idea
@@ -6,4 +7,14 @@ results/checkpoint
 results/visualization
 results/all
 results/partial
+=======
+**/__pycache__
+**/*.pyc
+.idea
+results/plot
+results/checkpoint
+results/visualization
+results/all
+results/partial
+>>>>>>> aaa6da6dbc757886f2ceba72fae37a3a7e4eb5f8
 data/cluster
