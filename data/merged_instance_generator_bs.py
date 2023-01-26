@@ -88,7 +88,7 @@ class ASDTDTaskGenerator(object):
     def __len__(self):
         if self.setname in [ 'test', 'val']:
             return self.data_len
-        return 1000#self.data_len
+        return 1000 #self.data_len
 
     def __getitem__(self, idx):
         #Randomly select a player and then the corresponding episode
@@ -106,7 +106,6 @@ class ASDTDTaskGenerator(object):
         merged_path = self.ind_to_path_merged[user_ep_id]
 
         #Data to begin
-        #
         intervals = self.path_merged_length_both[merged_path]
         pos_begin = np.random.randint(intervals[0], intervals[1])
         pos_end = pos_begin + self.num_window
@@ -129,7 +128,7 @@ class ASDTDTaskGenerator(object):
         class_level = torch.tensor([self.ind_to_class_level[user_ep_id]])
 
         gaze_start = 1
-        if self.args.is_lstm: #No time feature
+        if self.args.is_lstm: # No time feature
             # gaze_start = 1
             touch_data = merged_data[:,-3:]
         else:

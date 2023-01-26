@@ -1,9 +1,7 @@
 **/__pycache__
 **/*.pyc
 .idea
-results/plot
-results/checkpoint
+results/plots
 results/visualization
-results/all
-results/partial
 data/cluster
+DATA

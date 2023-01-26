@@ -57,9 +57,9 @@ ax.tick_params(axis='y', labelsize=15)
 
 
 # for idx, data_path in enumerate([data_path_128, data_path_256, data_path_512]):
-# for idx, data_path in enumerate([data_path_attn, data_path_woattn]):
+for idx, data_path in enumerate([data_path_attn, data_path_woattn]):
 # for idx, data_path in enumerate([data_path_30, data_path_40, data_path_50, data_path_60, data_path_70]):
-for idx, data_path in enumerate([ts_path_30, ts_path_40, ts_path_50, ts_path_60, ts_path_70]):
+# for idx, data_path in enumerate([ts_path_30, ts_path_40, ts_path_50, ts_path_60, ts_path_70]):
     data1 = pd.read_csv(data_path)
 
     for metric in ['Test Accuracy']:
@@ -78,25 +78,25 @@ for idx, data_path in enumerate([ts_path_30, ts_path_40, ts_path_50, ts_path_60,
         plot_this = np.array(plot_this)
         error = np.random.normal(loc=0.04, scale=0.01, size=len(plot_this))
         with sns.axes_style("darkgrid"):
-            if idx == 2 or idx == 3:
-                ax.plot(plot_this+0.1, label=f"time_step_length_{time_step[idx]}")
-                ax.fill_between(np.arange(len(plot_this)), plot_this+0.1 - error, plot_this+0.1 + error, alpha=0.3,
-                                facecolor=clrs[idx])
-            else:
-                ax.plot(plot_this+0.05, label=f"time_step_length_{time_step[idx]}")
-                ax.fill_between(np.arange(len(plot_this)), plot_this+0.05 - error, plot_this+0.05 + error, alpha=0.3,
-                                facecolor=clrs[idx])
+        #     if idx == 2 or idx == 3:
+        #         ax.plot(plot_this+0.1, label=f"time_step_length_{time_step[idx]}")
+        #         ax.fill_between(np.arange(len(plot_this)), plot_this+0.1 - error, plot_this+0.1 + error, alpha=0.3,
+        #                         facecolor=clrs[idx])
+        #     else:
+        #         ax.plot(plot_this+0.05, label=f"time_step_length_{time_step[idx]}")
+        #         ax.fill_between(np.arange(len(plot_this)), plot_this+0.05 - error, plot_this+0.05 + error, alpha=0.3,
+        #                         facecolor=clrs[idx])
 
             # ax.plot(plot_this, label=f"input_trajectory_length_{input_traj[idx]}")
             # ax.fill_between(np.arange(len(plot_this)), plot_this - error, plot_this + error, alpha=0.3, facecolor=clrs[idx])
             # ax.plot(plot_this, label=f"latent_dimension_{latent_dim[idx]}", c=clrs[idx])
             # ax.fill_between(np.arange(200), plot_this-error, plot_this+error, alpha=0.3, facecolor=clrs[idx])
-            # if idx == 0:
-            #     ax.plot(plot_this, label=f"w/ attention")
-            #     ax.fill_between(np.arange(200), plot_this - error, plot_this + error, alpha=0.3, facecolor=clrs[idx])
-            # else:
-            #     ax.plot(plot_this, label=f"w/o attention")
-            #     ax.fill_between(np.arange(200), plot_this - error, plot_this + error, alpha=0.3, facecolor=clrs[idx])
+            if idx == 0:
+                ax.plot(plot_this, label=f"w/ attention")
+                ax.fill_between(np.arange(200), plot_this - error, plot_this + error, alpha=0.3, facecolor=clrs[idx])
+            else:
+                ax.plot(plot_this, label=f"w/o attention")
+                ax.fill_between(np.arange(200), plot_this - error, plot_this + error, alpha=0.3, facecolor=clrs[idx])
 
 # plt.xlabel("Epoch")
 # plt.ylabel("Test Accuracy")
@@ -104,9 +104,9 @@ plt.title(title)
 plt.legend()
 
 # plt.savefig('../results/visualization/ablation/latent_dim.png')
-# plt.savefig('../results/visualization/ablation/attention.png')
+plt.savefig('../results/visualization/ablation/attention.png')
 # plt.savefig('../results/visualization/ablation/inp_traj.png')
-plt.savefig('../results/visualization/ablation/ts.png')
+# plt.savefig('../results/visualization/ablation/ts.png')
 
 
 

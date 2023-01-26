@@ -37,7 +37,7 @@ do
 #  then
 #    python RAM_ASD_TD_train_test.py --identifier partial --seed $i
 #  fi
-#
+
   if [[ $first = "no_attention" ]]; then
       python RAM_ASD_TD_train_test.py --gpu 0 --latent $d --model no_attention --seed $i
   elif [[ $first = "attention_only" ]]; then
