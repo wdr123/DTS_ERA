@@ -3,5 +3,6 @@
 .idea
 results/plots
 results/visualization
+results/checkpoint
 data/cluster
 DATA
